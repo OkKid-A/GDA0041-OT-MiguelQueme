@@ -4,6 +4,9 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const {connectDB, sql, conectarDB} = require('./config/db');
+const autenticacionToken = require('./middleware/autenticacionToken');
+const generarAutToken = require('./middleware/generarAutToken');
+require('dotenv').config();
 
 const app = express();
 
@@ -18,7 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Manejamos las sesiones
 app.use(session({
-    secret: process.env.SESSION_SECRET, // Usamos una llave segura y la guardamos en el archivo .env
+    secret: process.env.SESSION_SECRET, // Usamos una llave segura guardada en un archivo .env
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -26,13 +29,18 @@ app.use(session({
     }
 }));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// Endpoint para iniciar sesion y retornar un token
+app.post('/login', (req, res) => {
+    const user = { id: 1, name: 'John Doe' }; // Replace with actual user verification logic
+    const token = generarAutToken(user);
+    // El token se retorna para ser almacenado en el frontend
+    res.json({token})
+});
 
 // Iniciamos el servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Iniciamos el servidor en ${PORT}`);
-})
+});
 
 module.exports = app;
