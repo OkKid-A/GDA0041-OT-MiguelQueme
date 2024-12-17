@@ -10,6 +10,9 @@ require('dotenv').config();
 
 const app = express();
 
+// Instanciamos Routers
+const categoriasRouter = require('./routes/categoriasRouter');
+
 // Nos conectamos a la base de datos
 conectarDB();
 
@@ -18,6 +21,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+//Nombramos rutas
+app.use('/categorias',categoriasRouter);
 
 // Manejamos las sesiones
 app.use(session({
@@ -35,6 +41,22 @@ app.post('/login', (req, res) => {
     const token = generarAutToken(user);
     // El token se retorna para ser almacenado en el frontend
     res.json({token})
+});
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+    next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 // Iniciamos el servidor
