@@ -12,6 +12,8 @@ const app = express();
 
 // Instanciamos Routers
 const categoriasRouter = require('./routes/categoriasRouter');
+const productosRouter = require('./routes/productosRouter');
+const estadosRouter = require('./routes/estadosRouter');
 
 // Nos conectamos a la base de datos
 conectarDB();
@@ -24,6 +26,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //Nombramos rutas
 app.use('/categorias',categoriasRouter);
+app.use('/productos',productosRouter);
+app.use('/estados',estadosRouter);
 
 // Manejamos las sesiones
 app.use(session({

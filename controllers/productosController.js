@@ -61,7 +61,7 @@ exports.insertarProducto = async (req, res) => {
         const id_producto = result.recordset[0].id_producto;
         res.status(201).send({id_producto,message:'Producto creado exitosamente'});
     } catch (err) {
-        res.status(500).send('Server Error');
+        res.status(500).send('Error al insertar el producto: '+err.message);
     }
 };
 
