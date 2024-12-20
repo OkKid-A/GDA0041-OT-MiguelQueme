@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const {connectDB, sql, conectarDB} = require('./config/db');
 const autenticacionToken = require('./middleware/autenticacionToken');
-const generarAutToken = require('./middleware/generarAutToken');
+const generarAutToken = require('./middleware/generarAuthToken');
 require('dotenv').config();
 
 const app = express();
@@ -14,6 +14,9 @@ const app = express();
 const categoriasRouter = require('./routes/categoriasRouter');
 const productosRouter = require('./routes/productosRouter');
 const estadosRouter = require('./routes/estadosRouter');
+const authRouter = require('./routes/authRouter');
+const usuariosRouter = require('./routes/usuariosRouter');
+const clientesRouter = require('./routes/clientesRouter');
 
 // Nos conectamos a la base de datos
 conectarDB();
@@ -28,6 +31,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/categorias',categoriasRouter);
 app.use('/productos',productosRouter);
 app.use('/estados',estadosRouter);
+app.use('/auth',authRouter);
+app.use('/usuarios',usuariosRouter);
+app.use('/clients',clientesRouter);
 
 // Manejamos las sesiones
 app.use(session({

@@ -2,7 +2,7 @@ const {sql} = require('../config/db.js');
 
 // Endpoint para obtener los datos de toda categoria
 exports.obtenerCategorias = async (req, res) => {
-    const userId = req.user.userId; // Confirmamos que el token exista en la request
+    const userId = req.user.id_usuario; // Confirmamos que el token exista en la request
 
     if (!userId) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
@@ -18,7 +18,7 @@ exports.obtenerCategorias = async (req, res) => {
 
 // Endpoint para obtener los datos de cada categorias activo
 exports.obtenerCategoriasActivas = async (req, res) => {
-    const userId = req.user.userId; // Confirmamos que el token exista en la request
+    const userId = req.user.id_usuario; // Confirmamos que el token exista en la request
 
     if (!userId) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
@@ -35,7 +35,7 @@ exports.obtenerCategoriasActivas = async (req, res) => {
 // Endpoint para obtener los datos de solo una categoria
 exports.obtenerCategoriaPorId = async (req, res) => {
     const id_categoria = req.params.id;
-    const userId = req.user.userId;
+    const userId = req.user.id_usuario;
 
     if (!userId) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
@@ -55,7 +55,7 @@ exports.obtenerCategoriaPorId = async (req, res) => {
 // Endpoint para insertar una categoria
 exports.insertarCategoriaProducto = async (req, res) => {
     const { nombre, id_estado } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user.id_usuario;
 
     if (!userId) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
@@ -81,7 +81,7 @@ exports.insertarCategoriaProducto = async (req, res) => {
 exports.editarCategoria = async (req, res) => {
     const id_categoria = req.params.id;
     const { nombre, id_estado,fecha_creacion } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user.id_usuario;
 
     if (!userId) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
@@ -105,7 +105,7 @@ exports.editarCategoria = async (req, res) => {
 
 exports.desactivarCategoria = async (req, res) => {
     const id_categoria = req.params.id;
-    const userId = req.user.userId;
+    const userId = req.user.id_usuario;
 
     if (!userId) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');

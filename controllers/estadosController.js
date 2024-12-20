@@ -1,7 +1,7 @@
 const {sql} = require('../config/db.js');
 
 exports.obtenerEstados = async (req, res) => {
-    const userId = req.user.userId; // Confirmamos que el token exista en la request
+    const userId = req.user.id_usuario; // Confirmamos que el token exista en la request
 
     if (!userId) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
@@ -17,7 +17,7 @@ exports.obtenerEstados = async (req, res) => {
 
 exports.insertarEstado = async (req, res) => {
     const { nombre} = req.body;
-    const userId = req.user.userId; // Confirmamos que el token exista en la request
+    const userId = req.user.id_usuario; // Confirmamos que el token exista en la request
 
     if (!userId) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
@@ -29,7 +29,7 @@ exports.insertarEstado = async (req, res) => {
             @nombre = '${nombre}';
         `);
         // Obtenemos el id_estado del nuevo estado
-        const id_estado = result.recordset[0].id_estado;
+        const id_estado = resultado.recordset[0].id_estado;
         res.status(201).send({id_estado,message:'Estado creado exitosamente'});
     } catch (err) {
         res.status(500).send('Error al insertar el producto: '+err.message);
@@ -38,7 +38,7 @@ exports.insertarEstado = async (req, res) => {
 
 exports.editarEstado = async (req, res) => {
     const { nombre} = req.body;
-    const userId = req.user.userId; // Confirmamos que el token exista en la request
+    const userId = req.user.id_usuario; // Confirmamos que el token exista en la request
     const id_estado = req.params.id;
 
     if (!userId) {

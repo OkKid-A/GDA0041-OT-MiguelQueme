@@ -13,13 +13,19 @@ const config = {
     },
 };
 
+// Generamos una conexion singleton para mantener una sola conexion abierta hacia la db
+let pool;
+
 async function conectarDB(){
-    try{
-        await sql.connect(config);
-        console.log('Conectado exitosamente a la DB');
-    } catch(e){
-        console.error('Conexion fallida: ' + e.message);
+    if (!pool){ //Si la conexion no ha sido creada la creamos, si ya existe usamos la misma conexion
+        try{
+            await sql.connect(config);
+            console.log('Conectado exitosamente a la DB');
+        } catch(e){
+            console.error('Conexion fallida: ' + e.message);
+        }
     }
+    return pool;
 }
 
 module.exports = {

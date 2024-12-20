@@ -2,9 +2,9 @@ const {sql} = require('../config/db.js');
 
 // Obtiene los datos de cada producto activo
 exports.obtenerProductos = async (req, res) => {
-    const userId = req.user.userId; // Confirmamos que el token exista en la request
+    const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
 
-    if (!userId) {
+    if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
     }
 
@@ -19,9 +19,9 @@ exports.obtenerProductos = async (req, res) => {
 // Obtiene un solo producto segun su id
 exports.obtenerProductoPorId = async (req, res) => {
     const id_producto = req.params.id;
-    const userId = req.user.userId; // Confirmamos que el token exista en la request
+    const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
 
-    if (!userId) {
+    if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
     }
 
@@ -38,9 +38,9 @@ exports.obtenerProductoPorId = async (req, res) => {
 
 exports.insertarProducto = async (req, res) => {
     const { nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado } = req.body;
-    const userId = req.user.userId; // Confirmamos que el token exista en la request
+    const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
 
-    if (!userId) {
+    if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
     }
 
@@ -54,7 +54,7 @@ exports.insertarProducto = async (req, res) => {
         @precio = ${precio}, 
         @foto = ${foto ? `'${foto}'` : 'NULL'}, 
         @id_categoria = ${id_categoria}, 
-        @id_usuario = ${userId}, 
+        @id_usuario = ${id_usuario}, 
         @id_estado = ${id_estado};
     `);
         // Obtenemos el id_producto del resultado
@@ -69,9 +69,9 @@ exports.insertarProducto = async (req, res) => {
 exports.editarProducto = async (req, res) => {
     const id_producto = req.params.id;
     const { nombre, marca, codigo, stock, precio, fecha_creacion, foto, id_categoria, id_estado } = req.body;
-    const userId = req.user.userId;
+    const id_usuario = req.user.id_usuario;
 
-    if (!userId) {
+    if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
     }
 
@@ -98,7 +98,7 @@ exports.editarProducto = async (req, res) => {
 
 exports.desactivarProducto = async (req, res) => {
     const id_producto = req.params.id;
-    const userId = req.user.userId;
+    const userId = req.user.id_usuario;
 
     if (!userId) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
