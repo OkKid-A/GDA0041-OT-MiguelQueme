@@ -19,6 +19,22 @@ exports.obtenerClientes = async (req, res) => {
     }
 };
 
+exports.obtenerClientePorID = async (req, res) => {
+    const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
+    const id_cliente = req.params.id;
+
+    if (!id_usuario) {
+        return res.status(401).send('No autorizado: No has iniciado sesion.');
+    }
+
+    try {
+        const pool = await conectarDB();
+        res.status(200).send(Cliente.obtenerCliente(id_cliente,pool));
+    } catch (err) {
+        res.status(404).send('Error al recuperar cliente: '+err.message);
+    }
+}
+
 exports.crearCliente = async (req, res) => {
     const {razon, nombre, direccion, correo, telefono} = req.body;
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
@@ -57,6 +73,7 @@ exports.editarCliente = async (req, res) => {
     } catch (err) {
         return res.status(400).send('Error al actualizar al cliente: '+err.message);
     }
-}
+};
+
 
 

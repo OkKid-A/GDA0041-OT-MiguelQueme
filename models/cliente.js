@@ -53,6 +53,15 @@ class Cliente {
         `);
     }
 
+    static async obtenerCliente(id_cliente,pool) {
+
+        const resultado = await pool.request()
+            .input('id_cliente',sql.Int, id_cliente)
+            .execute(`seleccionCliente`);
+
+        return resultado.recordset[0];
+    }
+
 }
 
 module.exports = Cliente;

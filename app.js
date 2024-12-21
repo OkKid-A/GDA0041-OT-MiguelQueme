@@ -17,6 +17,7 @@ const estadosRouter = require('./routes/estadosRouter');
 const authRouter = require('./routes/authRouter');
 const usuariosRouter = require('./routes/usuariosRouter');
 const clientesRouter = require('./routes/clientesRouter');
+const ordenesRouter = require('./routes/ordenesRouter');
 
 // Nos conectamos a la base de datos
 conectarDB();
@@ -33,7 +34,8 @@ app.use('/productos',productosRouter);
 app.use('/estados',estadosRouter);
 app.use('/auth',authRouter);
 app.use('/usuarios',usuariosRouter);
-app.use('/clients',clientesRouter);
+app.use('/clientes',clientesRouter);
+app.use('/ordenes',productosRouter);
 
 // Manejamos las sesiones
 app.use(session({

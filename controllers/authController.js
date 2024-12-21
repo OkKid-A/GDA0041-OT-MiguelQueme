@@ -21,7 +21,7 @@ exports.login = async (req, res) => {
 
         const usuario = await Usuario.loginUsuario(correo, passEncriptada, pool);
 
-        if (usuario) {
+        if (!usuario) {
             res.status(401).send('Credenciales incorrectas')
         }
 

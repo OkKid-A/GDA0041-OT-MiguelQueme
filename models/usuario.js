@@ -83,9 +83,7 @@ class Usuario {
         return resultado.recordset[0].id_usuario;
     };
 
-     async actualizar() {
-        const pool = await conectarDB();
-
+     async actualizar(pool) {
         await pool.request()
             .input('id_usuario', sql.Int, this.id_usuario)
             .input('correo', sql.NVarChar, this.correo)

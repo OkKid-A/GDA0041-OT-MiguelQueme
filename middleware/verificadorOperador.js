@@ -1,8 +1,7 @@
 function verificadorOperador(req, res, next) { //middleware para permitir acceso solo  a operadores
     const user = req.user;
-
     //verificamos que la informacion de usuario este presente y su rol sea operador
-    if (user && user.rol === 'operador') {
+    if (req.user && req.user.rol === 'operador') {
         return next(); //seguimos con la ejecucion
     }
 
@@ -10,4 +9,4 @@ function verificadorOperador(req, res, next) { //middleware para permitir acceso
     return res.status(403).json({ message: 'Acceso denegado, solo se permiten operadores.' });
 }
 
-module.exports = verificadorOperador();
+module.exports = verificadorOperador;
