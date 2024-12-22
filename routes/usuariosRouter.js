@@ -1,12 +1,18 @@
-const express = require('express');
+import express from 'express';
+import {
+    obtenerUsuarios,
+    insertarUsuario,
+    editarUsuario,
+    desactivarUsuario
+} from '../controllers/usuariosController.js';
+import autenticacionToken from '../middleware/autenticacionToken.js';
+import verificadorOperador from '../middleware/verificadorOperador.js';
+
 const router = express.Router();
-const usuariosController = require('../controllers/usuariosController');
-const autenticacionToken = require("../middleware/autenticacionToken");
-const verificadorOperador = require("../middleware/verificadorOperador");
 
-router.get('/',autenticacionToken, verificadorOperador, usuariosController.obtenerUsuarios);
-router.post('/',autenticacionToken, verificadorOperador, usuariosController.insertarUsuario);
-router.put('/:id',autenticacionToken, verificadorOperador, usuariosController.editarUsuario);
-router.delete('/:id',autenticacionToken, verificadorOperador, usuariosController.desactivarUsuario)
+router.get('/', autenticacionToken, verificadorOperador, obtenerUsuarios);
+router.post('/', autenticacionToken, verificadorOperador, insertarUsuario);
+router.put('/:id', autenticacionToken, verificadorOperador, editarUsuario);
+router.delete('/:id', autenticacionToken, verificadorOperador, desactivarUsuario);
 
-module.exports = router;
+export default router;

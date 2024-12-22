@@ -1,7 +1,6 @@
-const sql = require('mssql');
-const { conectarDB } = require('../config/db'); // Adjust the path to your actual db.js location
+import sql from 'mssql';
 
-class Order {
+class Orden {
     constructor(id_orden, nombre, apellido, direccion, telefono, correo, fecha_entrega, total_orden, fecha_creacion, id_usuario, id_estado) {
         this.id_orden = id_orden;
         this.nombre = nombre;
@@ -18,7 +17,6 @@ class Order {
 
     // Funcion para insertar una orden junto con el json de sus detalles
     static async insertarOrdenConDetalles(fecha_entrega, pool, json, id_usuario){
-
         const resultado = await pool.request()
             .input('fecha_entrega', fecha_entrega)
             .input('id_usuario', id_usuario)
@@ -26,22 +24,38 @@ class Order {
             .execute(`insertarOrdenConDetalles`);
 
         return resultado.recordset[0];
-    };
+    }
 
     async actualizarOrden(pool){
-
         await pool.request()
-            .input('id_orden', sql.Int, order.id_orden)
-            .input('nombre', sql.NVarChar(45), order.nombre)
-            .input('apellido', sql.NVarChar(45), order.apellido)
-            .input('direccion', sql.NVarChar(545), order.direccion)
-            .input('telefono', sql.VarChar(8), order.telefono)
-            .input('correo', sql.NVarChar(128), order.correo)
-            .input('fecha_entrega', sql.Date, order.fecha_entrega)
-            .input('total_orden', sql.Float, order.total_orden)
-            .input('id_estado', sql.Int, order.id_estado)
+            .input('id_orden', sql.Int, this.id_orden)
+            .input('nombre', sql.NVarChar(45), this.nombre)
+            .input('apellido', sql.NVarChar(45), this.apellido)
+            .input('direccion', sql.NVarChar(545), this.direccion)
+            .input('telefono', sql.VarChar(8), this.telefono)
+            .input('correo', sql.NVarChar(128), this.correo)
+            .input('fecha_entrega', sql.Date, this.fecha_entrega)
+            .input('total_orden', sql.Float, this.total_orden)
+            .input('id_estado', sql.Int, this.id_estado)
             .execute('actualizarOrden');
-    };
+    }
+
+    static async obtenerOrdenes(pool){
+        return await pool.request()
+            .execute(`seleccionarTodasOrdenes`);
+    }
+
+    static async obtenerOrdenPorId(pool, id_orden){
+        return await pool.request()
+            .input('id_orden', sql.Int, id_orden)
+            .execute(`obtenerOrdenConDetalles`);
+    }
+
+    static async desactivarOrden(pool, id_orden){
+        await pool.request()
+            .input('id_orden', sql.Int, id_orden)
+            .execute(`desactivarOrden`);
+    }
 }
 
-module.exports = Order;
+export default Orden;

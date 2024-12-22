@@ -1,5 +1,4 @@
-const sql = require("mssql");
-
+import sql from 'mssql';
 
 // Ingresa los datos de tu base de datos
 const config = {
@@ -16,19 +15,16 @@ const config = {
 // Generamos una conexion singleton para mantener una sola conexion abierta hacia la db
 let pool;
 
-async function conectarDB(){
-    if (!pool){ //Si la conexion no ha sido creada la creamos, si ya existe usamos la misma conexion
-        try{
+async function conectarDB() {
+    if (!pool) { //Si la conexion no ha sido creada la creamos, si ya existe usamos la misma conexion
+        try {
             await sql.connect(config);
             console.log('Conectado exitosamente a la DB');
-        } catch(e){
+        } catch (e) {
             console.error('Conexion fallida: ' + e.message);
         }
     }
     return pool;
 }
 
-module.exports = {
-    sql,
-    conectarDB
-};
+export { sql, conectarDB };

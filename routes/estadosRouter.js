@@ -1,10 +1,15 @@
-const express = require('express');
+import express from 'express';
+import {
+    obtenerEstados,
+    insertarEstado,
+    editarEstado
+} from '../controllers/estadosController.js';
+import autenticacionToken from '../middleware/autenticacionToken.js';
+
 const router = express.Router();
-const estadosController = require('../controllers/estadosController');
-const autenticacionToken = require("../middleware/autenticacionToken");
 
-router.get('/', autenticacionToken, estadosController.obtenerEstados);
-router.post('/', autenticacionToken, estadosController.insertarEstado);
-router.put('/',autenticacionToken, estadosController.editarEstado);
+router.get('/', autenticacionToken, obtenerEstados);
+router.post('/', autenticacionToken, insertarEstado);
+router.put('/', autenticacionToken, editarEstado);
 
-module.exports = router;
+export default router;

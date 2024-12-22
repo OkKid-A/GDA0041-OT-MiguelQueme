@@ -1,8 +1,8 @@
-const {sql, conectarDB} = require("../config/db");
-const {pool} = require("mssql/lib/global-connection");
+import sql from 'mssql';
+import { conectarDB } from '../config/db.js';
 
 class Cliente {
-    constructor(id_cliente,razon, nombre, direccion, correo, telefono) {
+    constructor(id_cliente, razon, nombre, direccion, correo, telefono) {
         this.id_cliente = id_cliente;
         this.razon = razon;
         this.nombre = nombre;
@@ -11,57 +11,41 @@ class Cliente {
         this.telefono = telefono;
     }
 
-    async insertar() {
-        const pool = await conectarDB();
+    static async obtenerClientes(pool) {
+        const resultado = await pool.request().execute("selecccionarTodosClientes");
+        return resultado.recordset;
+    }
 
-        const result = await pool.request()
+    static async obtenerCliente(pool, id_cliente) {
+        const resultado = await pool.request()
+            .input('id_cliente', sql.Int, id_cliente)
+            .execute("seleccionCliente");
+        return resultado.recordset[0];
+    }
+
+    async insertar(pool) {
+        const resultado = await pool.request()
             .input('razon_social', sql.NVarChar, this.razon)
             .input('nombre_comercial', sql.NVarChar, this.nombre)
             .input('direccion_entrega', sql.NVarChar, this.direccion)
             .input('correo_empresarial', sql.NVarChar, this.correo)
             .input('telefono_empresarial', sql.VarChar, this.telefono)
-            .query(`
-            EXEC insertarCliente
-            @razon_social = @razon_social,
-            @nombre_comercial = @nombre_comercial,
-            @direccion_entrega = @direccion_entrega,
-            @correo_empresarial = @correo_empresarial,
-            @telefono_empresarial = @telefono_empresarial;
-        `);
-
-        return result.recordset[0].id_cliente;
+            .execute("insertarCliente");
+        this.id_cliente = resultado.recordset[0].id_cliente;
+        return this.id_cliente;
     }
 
-    async actualizar() {
-        const pool = await conectarDB();
-
-        await pool.request()
+    async actualizar(pool) {
+        const resultado = await pool.request()
             .input('id_cliente', sql.Int, this.id_cliente)
             .input('razon_social', sql.NVarChar, this.razon)
             .input('nombre_comercial', sql.NVarChar, this.nombre)
             .input('direccion_entrega', sql.NVarChar, this.direccion)
             .input('correo_empresarial', sql.NVarChar, this.correo)
             .input('telefono_empresarial', sql.VarChar, this.telefono)
-            .query(`
-            EXEC actualizarCliente
-            @id_cliente = @id_cliente,
-            @razon_social = @razon_social,
-            @nombre_comercial = @nombre_comercial,
-            @direccion_entrega = @direccion_entrega,
-            @correo_empresarial = @correo_empresarial,
-            @telefono_empresarial = @telefono_empresarial;
-        `);
+            .execute("actualizarCliente");
+        return resultado;
     }
-
-    static async obtenerCliente(id_cliente,pool) {
-
-        const resultado = await pool.request()
-            .input('id_cliente',sql.Int, id_cliente)
-            .execute(`seleccionCliente`);
-
-        return resultado.recordset[0];
-    }
-
 }
 
-module.exports = Cliente;
+export default Cliente;

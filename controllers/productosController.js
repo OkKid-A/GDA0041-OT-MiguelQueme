@@ -1,23 +1,25 @@
-const {sql} = require('../config/db.js');
+import { conectarDB } from '../config/db.js';
+import Producto from '../models/producto.js';
 
 // Obtiene los datos de cada producto activo
-exports.obtenerProductos = async (req, res) => {
+export const obtenerProductos = async (req, res) => {
     const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
 
     if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
     }
 
-    try{
-        const resultado = await sql.query('SELECT * FROM productosActivos');
-        res.json(resultado.recordset);
-    } catch (e){
-        res.status(404).send('Error al recuperar productos activos: '+e.message);
+    try {
+        const pool = await conectarDB();
+        const productos = await Producto.obtenerActivos(pool);
+        res.json(productos);
+    } catch (e) {
+        res.status(404).send('Error al recuperar productos activos: ' + e.message);
     }
 }
 
 // Obtiene un solo producto segun su id
-exports.obtenerProductoPorId = async (req, res) => {
+export const obtenerProductoPorId = async (req, res) => {
     const id_producto = req.params.id;
     const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
 
@@ -26,17 +28,16 @@ exports.obtenerProductoPorId = async (req, res) => {
     }
 
     try {
-        const resultado = await sql.query(`
-            EXEC seleccionarProducto 
-                @id_producto= ${id_producto}
-        `);
-        res.json(resultado.recordset);
+        const pool = await conectarDB();
+        const producto = await Producto.obtenerPorId(pool, id_producto);
+        res.json(producto);
     } catch (e) {
-        res.status(404).send('Error al recuperar el producto: '+e.message);
+        res.status(404).send('Error al recuperar el producto: ' + e.message);
     }
 }
 
-exports.insertarProducto = async (req, res) => {
+// Inserta un nuevo producto
+export const insertarProducto = async (req, res) => {
     const { nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado } = req.body;
     const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
 
@@ -45,28 +46,17 @@ exports.insertarProducto = async (req, res) => {
     }
 
     try {
-        const result = await sql.query(`
-      EXEC insertarProducto 
-        @nombre = '${nombre}', 
-        @marca = '${marca}', 
-        @codigo = '${codigo}', 
-        @stock = ${stock}, 
-        @precio = ${precio}, 
-        @foto = ${foto ? `'${foto}'` : 'NULL'}, 
-        @id_categoria = ${id_categoria}, 
-        @id_usuario = ${id_usuario}, 
-        @id_estado = ${id_estado};
-    `);
-        // Obtenemos el id_producto del resultado
-        const id_producto = result.recordset[0].id_producto;
-        res.status(201).send({id_producto,message:'Producto creado exitosamente'});
+        const pool = await conectarDB();
+        const producto = new Producto(null, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado);
+        const id_producto = await producto.insertar(pool, id_usuario);
+        res.status(201).send({ id_producto, message: 'Producto creado exitosamente' });
     } catch (err) {
-        res.status(500).send('Error al insertar el producto: '+err.message);
+        res.status(500).send('Error al insertar el producto: ' + err.message);
     }
-};
+}
 
 // Actualiza un producto, podemos cambiar uno, varios o todos los campos
-exports.editarProducto = async (req, res) => {
+export const editarProducto = async (req, res) => {
     const id_producto = req.params.id;
     const { nombre, marca, codigo, stock, precio, fecha_creacion, foto, id_categoria, id_estado } = req.body;
     const id_usuario = req.user.id_usuario;
@@ -76,27 +66,17 @@ exports.editarProducto = async (req, res) => {
     }
 
     try {
-        const result = await sql.query(`
-          EXEC actualizarProducto
-            @id_producto = ${id_producto}, 
-            @nombre = ${nombre ? `'${nombre}'` : 'NULL'}, 
-            @marca = ${marca ? `'${marca}'` : 'NULL'}, 
-            @codigo = ${codigo ? `'${codigo}'` : 'NULL'}, 
-            @stock = ${stock !== undefined ? stock : 'NULL'}, 
-            @precio = ${precio !== undefined ? precio : 'NULL'}, 
-            @fecha_creacion = ${fecha_creacion ? `'${fecha_creacion}'` : 'NULL'}, 
-            @foto = ${foto ? `'${foto}'` : 'NULL'}, 
-            @id_categoria = ${id_categoria !== undefined ? id_categoria : 'NULL'}, 
-            @id_estado = ${id_estado !== undefined ? id_estado : 'NULL'};
-        `);
-
+        const pool = await conectarDB();
+        const producto = new Producto(id_producto, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado, fecha_creacion);
+        await producto.actualizar(pool);
         res.status(201).send('Producto actualizado con exito.');
     } catch (err) {
-        res.status(500).send('Error al intentar actualizar el producto: '+err.message);
+        res.status(500).send('Error al intentar actualizar el producto: ' + err.message);
     }
 };
 
-exports.desactivarProducto = async (req, res) => {
+// Desactiva un producto
+export const desactivarProducto = async (req, res) => {
     const id_producto = req.params.id;
     const userId = req.user.id_usuario;
 
@@ -105,13 +85,10 @@ exports.desactivarProducto = async (req, res) => {
     }
 
     try {
-        const result = await sql.query(`
-            EXEC desactivarProducto 
-                @id_producto = ${id_producto};
-        `);
+        const pool = await conectarDB();
+        await Producto.desactivar(pool, id_producto);
         res.status(201).send('Producto desactivado con exito.');
     } catch (err) {
-        res.status(500).send('Error al intentar desactivar el producto: '+err.message);
+        res.status(500).send('Error al intentar desactivar el producto: ' + err.message);
     }
 };
-

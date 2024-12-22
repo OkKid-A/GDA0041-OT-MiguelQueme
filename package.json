@@ -2,8 +2,10 @@
   "name": "gda0041-ot-miguelqueme",
   "version": "0.0.0",
   "private": true,
+  "main": "app.js",
+  "type": "module",
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node app.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -11,6 +13,7 @@
     "dotenv": "^16.4.7",
     "express": "~4.21.2",
     "express-session": "^1.18.1",
+    "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "mssql": "^11.0.1",

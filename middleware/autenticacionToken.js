@@ -1,7 +1,8 @@
-const jwt = require('jsonwebtoken');
-const redis = require('redis');
-const client = redis.createClient();
-const { promisify } = require('util');
+import jwt from 'jsonwebtoken';
+import { createClient } from 'redis';
+import { promisify } from 'util';
+
+const client = createClient();
 const getAsync = promisify(client.set).bind(client);
 
 const autenticacionToken = async (req, res, next) => {
@@ -9,14 +10,14 @@ const autenticacionToken = async (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({message: 'Acceso denegado. Token no encontrado.'});
+        return res.status(401).json({ message: 'Acceso denegado. Token no encontrado.' });
     }
 
     try {
         // Revisamos que el token no este en la blacklist debido a un cierre de sesion previo
         const baneado = await getAsync(token);
         if (baneado) {
-            return res.status(403).json({message: 'Acceso no autorizado. Tu sesión ha finalizado.'});
+            return res.status(403).json({ message: 'Acceso no autorizado. Tu sesión ha finalizado.' });
         }
 
         // Verificamos el token con una llave segura guardada en un archivo .env
@@ -24,8 +25,8 @@ const autenticacionToken = async (req, res, next) => {
         req.user = descifrado.user;
         next();
     } catch (err) {
-        res.status(403).json({message: 'Token invalido.'});
+        res.status(403).json({ message: 'Token invalido.' });
     }
 };
 
-module.exports = autenticacionToken;
+export default autenticacionToken;

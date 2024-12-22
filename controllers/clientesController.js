@@ -1,7 +1,7 @@
-const {sql, conectarDB}= require('../config/db');
-const Cliente = require('../models/cliente');
+import { conectarDB } from '../config/db.js';
+import Cliente from '../models/cliente.js';
 
-exports.obtenerClientes = async (req, res) => {
+export const obtenerClientes = async (req, res) => {
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
 
     if (!id_usuario) {
@@ -10,16 +10,14 @@ exports.obtenerClientes = async (req, res) => {
 
     try {
         const pool = await conectarDB();
-
-        const resultado = await pool.request()
-            .query("SELECT * FROM selecccionarTodosClientes");
-        res.status(200).send(resultado.recordset);
+        const clientes = await Cliente.obtenerClientes(pool);
+        res.status(200).send(clientes);
     } catch (err) {
-        res.status(500).send ('Error al recuperar clientes: '+err.message);
+        res.status(500).send('Error al recuperar clientes: ' + err.message);
     }
 };
 
-exports.obtenerClientePorID = async (req, res) => {
+export const obtenerClientePorID = async (req, res) => {
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
     const id_cliente = req.params.id;
 
@@ -29,14 +27,15 @@ exports.obtenerClientePorID = async (req, res) => {
 
     try {
         const pool = await conectarDB();
-        res.status(200).send(Cliente.obtenerCliente(id_cliente,pool));
+        const cliente = await Cliente.obtenerCliente(pool, id_cliente);
+        res.status(200).send(cliente);
     } catch (err) {
-        res.status(404).send('Error al recuperar cliente: '+err.message);
+        res.status(404).send('Error al recuperar cliente: ' + err.message);
     }
 }
 
-exports.crearCliente = async (req, res) => {
-    const {razon, nombre, direccion, correo, telefono} = req.body;
+export const crearCliente = async (req, res) => {
+    const { razon, nombre, direccion, correo, telefono } = req.body;
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
 
     if (!id_usuario) {
@@ -47,15 +46,16 @@ exports.crearCliente = async (req, res) => {
     const cliente = new Cliente(null, razon, nombre, direccion, correo, telefono);
 
     try {
-        const id_cliente = cliente.insertar();
-        return res.status(200).send({id_cliente, message: 'El cliente ha sido creado con exito.'});
+        const pool = await conectarDB();
+        const id_cliente = await cliente.insertar(pool);
+        return res.status(200).send({ id_cliente, message: 'El cliente ha sido creado con exito.' });
     } catch (err) {
-        return res.status(400).send('Error al insertar al nuevo cliente: '+err.message);
+        return res.status(400).send('Error al insertar al nuevo cliente: ' + err.message);
     }
 };
 
-exports.editarCliente = async (req, res) => {
-    const {razon, nombre, direccion, correo, telefono} = req.body;
+export const editarCliente = async (req, res) => {
+    const { razon, nombre, direccion, correo, telefono } = req.body;
     const id_cliente = req.params.id;
 
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
@@ -68,12 +68,11 @@ exports.editarCliente = async (req, res) => {
     const cliente = new Cliente(id_cliente, razon, nombre, direccion, correo, telefono);
 
     try {
-       await cliente.actualizar();
+        const pool = await conectarDB();
+        await cliente.actualizar(pool);
         return res.status(200).send('El cliente ha sido actualizado con exito.');
     } catch (err) {
-        return res.status(400).send('Error al actualizar al cliente: '+err.message);
+        return res.status(400).send('Error al actualizar al cliente: ' + err.message);
     }
 };
-
-
 

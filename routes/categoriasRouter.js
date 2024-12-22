@@ -1,13 +1,21 @@
-const express = require('express');
+import express from 'express';
+import {
+    obtenerCategorias,
+    obtenerCategoriasActivas,
+    obtenerCategoriaPorId,
+    insertarCategoriaProducto,
+    editarCategoria,
+    desactivarCategoria
+} from '../controllers/categoriasController.js';
+import autenticacionToken from '../middleware/autenticacionToken.js';
+
 const router = express.Router();
-const categoriasController = require('../controllers/categoriasController');
-const autenticacionToken = require("../middleware/autenticacionToken");
 
-router.get('/',autenticacionToken, categoriasController.obtenerCategorias)
-router.get('/activas',autenticacionToken, categoriasController.obtenerCategoriasActivas);
-router.get('/:id',autenticacionToken, categoriasController.obtenerCategoriaPorId);
-router.post('/',autenticacionToken, categoriasController.insertarCategoriaProducto);
-router.put('/:id',autenticacionToken, categoriasController.editarCategoria);
-router.delete('/:id',autenticacionToken, categoriasController.desactivarCategoria);
+router.get('/', autenticacionToken, obtenerCategorias);
+router.get('/activas', autenticacionToken, obtenerCategoriasActivas);
+router.get('/:id', autenticacionToken, obtenerCategoriaPorId);
+router.post('/', autenticacionToken, insertarCategoriaProducto);
+router.put('/:id', autenticacionToken, editarCategoria);
+router.delete('/:id', autenticacionToken, desactivarCategoria);
 
-module.exports = router;
+export default router;

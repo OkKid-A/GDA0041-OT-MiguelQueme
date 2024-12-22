@@ -1,9 +1,20 @@
-const express = require('express');
+import express from 'express';
+import {
+    obtenerOrdenes,
+    obtenerOrdenPorID,
+    insertarOrdenConDetalle,
+    actualizarOrden,
+    desactivarOrden
+} from '../controllers/ordenesController.js';
+import autenticacionToken from '../middleware/autenticacionToken.js';
+import verificadorOperador from '../middleware/verificadorOperador.js';
+
 const router = express.Router();
-const ordenController = require('../controllers/ordenesController');
-const autenticacionToken = require("../middleware/autenticacionToken");
 
-router.post('/',autenticacionToken,ordenController.insertarOrdenConDetalle);
-router.put('/:id',autenticacionToken, ordenController.actualizarOrden);
+router.get('/', autenticacionToken, obtenerOrdenes);
+router.get('/:id', autenticacionToken, obtenerOrdenPorID);
+router.post('/', autenticacionToken, insertarOrdenConDetalle);
+router.put('/:id', autenticacionToken, verificadorOperador, actualizarOrden);
+router.delete('/', autenticacionToken, verificadorOperador, desactivarOrden);
 
-module.exports = router;
+export default router;

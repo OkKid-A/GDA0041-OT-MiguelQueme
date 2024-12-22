@@ -1,7 +1,9 @@
-const sql = require("../config/db");
+import sql from 'mssql';
+import { conectarDB } from '../config/db.js';
 
 class Producto {
-    constructor(nombre, marca, codigo, stock, precio, foto, id_categoria, id_usuario, id_estado) {
+    constructor(id_producto, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado, fecha_creacion) {
+        this.id_producto = id_producto;
         this.nombre = nombre;
         this.marca = marca;
         this.codigo = codigo;
@@ -9,36 +11,89 @@ class Producto {
         this.precio = precio;
         this.foto = foto;
         this.id_categoria = id_categoria;
-        this.id_usuario = id_usuario;
         this.id_estado = id_estado;
+        this.fecha_creacion = fecha_creacion;
     }
 
-    static async insertar(producto, pool) {
-        const result = await pool.request()
-            .input('nombre', sql.NVarChar, producto.nombre)
-            .input('marca', sql.NVarChar, producto.marca)
-            .input('codigo', sql.NVarChar, producto.codigo)
-            .input('stock', sql.Int, producto.stock)
-            .input('precio', sql.Decimal, producto.precio)
-            .input('foto', sql.NVarChar, producto.foto)
-            .input('id_categoria', sql.Int, producto.id_categoria)
-            .input('id_usuario', sql.Int, producto.id_usuario)
-            .input('id_estado', sql.Int, producto.id_estado)
-            .query(`
-                EXEC insertarProducto
-                @nombre = @nombre,
-                @marca = @marca,
-                @codigo = @codigo,
-                @stock = @stock,
-                @precio = @precio,
-                @foto = @foto,
-                @id_categoria = @id_categoria,
-                @id_usuario = @id_usuario,
-                @id_estado = @id_estado;
-            `);
+    static async obtenerActivos(pool) {
+        const resultado = await pool.request().query('SELECT * FROM productosActivos');
+        return resultado.recordset;
+    }
 
-        return result.recordset[0].id_producto;
+    static async obtenerPorId(pool, id_producto) {
+        const resultado = await pool.request()
+            .input('id_producto', sql.Int, id_producto)
+            .query(`
+                EXEC seleccionarProducto 
+                @id_producto = @id_producto
+            `);
+        return resultado.recordset[0];
+    }
+
+    async insertar(pool, id_usuario) {
+        const resultado = await pool.request()
+            .input('nombre', sql.NVarChar, this.nombre)
+            .input('marca', sql.NVarChar, this.marca)
+            .input('codigo', sql.NVarChar, this.codigo)
+            .input('stock', sql.Int, this.stock)
+            .input('precio', sql.Float, this.precio)
+            .input('foto', sql.NVarChar, this.foto)
+            .input('id_categoria', sql.Int, this.id_categoria)
+            .input('id_usuario', sql.Int, id_usuario)
+            .input('id_estado', sql.Int, this.id_estado)
+            .query(`
+                EXEC insertarProducto 
+                @nombre = @nombre, 
+                @marca = @marca, 
+                @codigo = @codigo, 
+                @stock = @stock, 
+                @precio = @precio, 
+                @foto = @foto, 
+                @id_categoria = @id_categoria, 
+                @id_usuario = @id_usuario, 
+                @id_estado = @id_estado
+            `);
+        this.id_producto = resultado.recordset[0].id_producto;
+        return this.id_producto;
+    }
+
+    async actualizar(pool) {
+        const resultado = await pool.request()
+            .input('id_producto', sql.Int, this.id_producto)
+            .input('nombre', sql.NVarChar, this.nombre)
+            .input('marca', sql.NVarChar, this.marca)
+            .input('codigo', sql.NVarChar, this.codigo)
+            .input('stock', sql.Int, this.stock)
+            .input('precio', sql.Float, this.precio)
+            .input('fecha_creacion', sql.Date, this.fecha_creacion)
+            .input('foto', sql.NVarChar, this.foto)
+            .input('id_categoria', sql.Int, this.id_categoria)
+            .input('id_estado', sql.Int, this.id_estado)
+            .query(`
+                EXEC actualizarProducto
+                @id_producto = @id_producto, 
+                @nombre = @nombre, 
+                @marca = @marca, 
+                @codigo = @codigo, 
+                @stock = @stock, 
+                @precio = @precio, 
+                @fecha_creacion = @fecha_creacion, 
+                @foto = @foto, 
+                @id_categoria = @id_categoria, 
+                @id_estado = @id_estado
+            `);
+        return resultado;
+    }
+
+    static async desactivar(pool, id_producto) {
+        const resultado = await pool.request()
+            .input('id_producto', sql.Int, id_producto)
+            .query(`
+                EXEC desactivarProducto 
+                @id_producto = @id_producto
+            `);
+        return resultado;
     }
 }
 
-module.exports = Producto;
+export default Producto;

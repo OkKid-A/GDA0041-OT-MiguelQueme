@@ -1,45 +1,49 @@
-const express = require('express');
-const session = require('express-session');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const {connectDB, sql, conectarDB} = require('./config/db');
-const autenticacionToken = require('./middleware/autenticacionToken');
-const generarAutToken = require('./middleware/generarAuthToken');
-require('dotenv').config();
+import express from 'express';
+import session from 'express-session';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import { sql, conectarDB } from './config/db.js'; // Add .js extension
+import autenticacionToken from './middleware/autenticacionToken.js';
+import generarAutToken from './middleware/generarAuthToken.js';
+import dotenv from 'dotenv';
+import createError from 'http-errors';
+dotenv.config();
+
+import categoriasRouter from './routes/categoriasRouter.js';
+import productosRouter from './routes/productosRouter.js';
+import estadosRouter from './routes/estadosRouter.js';
+import authRouter from './routes/authRouter.js';
+import usuariosRouter from './routes/usuariosRouter.js';
+import clientesRouter from './routes/clientesRouter.js';
+import ordenesRouter from './routes/ordenesRouter.js';
 
 const app = express();
 
-// Instanciamos Routers
-const categoriasRouter = require('./routes/categoriasRouter');
-const productosRouter = require('./routes/productosRouter');
-const estadosRouter = require('./routes/estadosRouter');
-const authRouter = require('./routes/authRouter');
-const usuariosRouter = require('./routes/usuariosRouter');
-const clientesRouter = require('./routes/clientesRouter');
-const ordenesRouter = require('./routes/ordenesRouter');
-
-// Nos conectamos a la base de datos
-conectarDB();
+// Connect to the database
+await conectarDB().catch(err => {
+    console.error('Database connection failed:', err);
+    process.exit(1);
+});
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(path.dirname(''), 'public')));
 
-//Nombramos rutas
-app.use('/categorias',categoriasRouter);
-app.use('/productos',productosRouter);
-app.use('/estados',estadosRouter);
-app.use('/auth',authRouter);
-app.use('/usuarios',usuariosRouter);
-app.use('/clientes',clientesRouter);
-app.use('/ordenes',productosRouter);
+// Define routes
+app.use('/categorias', categoriasRouter);
+app.use('/productos', productosRouter);
+app.use('/estados', estadosRouter);
+app.use('/auth', authRouter);
+app.use('/usuarios', usuariosRouter);
+app.use('/clientes', clientesRouter);
+app.use('/ordenes', ordenesRouter);
 
-// Manejamos las sesiones
+// Handle sessions
 app.use(session({
-    secret: process.env.SESSION_SECRET, // Usamos una llave segura guardada en un archivo .env
+    secret: process.env.SESSION_SECRET, // Secure key from .env file
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -47,34 +51,34 @@ app.use(session({
     }
 }));
 
-// Endpoint para iniciar sesion y retornar un token
+// Endpoint to log in and return a token
 app.post('/login', (req, res) => {
     const user = { id: 1, name: 'John Doe' }; // Replace with actual user verification logic
     const token = generarAutToken(user);
-    // El token se retorna para ser almacenado en el frontend
-    res.json({token})
+    res.json({ token });
 });
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
+// Catch 404 and forward to error handler
+app.use((req, res, next) => {
     next(createError(404));
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-    // set locals, only providing error in development
+// Error handler
+app.use((err, req, res, next) => {
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-    // render the error page
     res.status(err.status || 500);
-    res.render('error');
+    res.json({
+        message: res.locals.message,
+        error: res.locals.error
+    });
 });
 
-// Iniciamos el servidor
+
+// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Iniciamos el servidor en ${PORT}`);
+    console.log(`Server started on port ${PORT}`);
 });
 
-module.exports = app;
+export default app;

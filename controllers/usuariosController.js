@@ -1,8 +1,8 @@
-const {conectarDB,sql} = require("../config/db");
-const crypto = require("crypto");
-const Usuario = require("../models/usuario");
+import { conectarDB } from '../config/db.js';
+import Usuario from '../models/usuario.js';
+import crypto from 'crypto';
 
-exports.obtenerUsuarios = async (req, res) => {
+export const obtenerUsuarios = async (req, res) => {
     const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
 
     if (!id_usuario) {
@@ -11,42 +11,41 @@ exports.obtenerUsuarios = async (req, res) => {
 
     try {
         const pool = await conectarDB();
-
-        const resultado = await pool.request()
-            .query("SELECT * FROM selecccionarTodosUsuario");
-        res.status(200).send(resultado.recordset);
+        const usuarios = await Usuario.obtenerUsuarios(pool);
+        res.status(200).send(usuarios);
     } catch (err) {
-        res.status(500).send ('Error al recuperar usuarios: '+err.message);
+        res.status(500).send('Error al recuperar usuarios: ' + err.message);
     }
 };
 
-exports.insertarUsuario = async (req, res) => {
+export const insertarUsuario = async (req, res) => {
     const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
 
     if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
     }
 
-    const {correo, password, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente} = req.body;
+    const { correo, password, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente } = req.body;
     // Encriptamos la contraseña en sha256 antes de enviarla al frontend
     const hash = crypto.createHash('sha256');
     hash.update(password);
     const passEncriptada = hash.digest('hex');
 
     // Creamos un objeto Usuario
-    const nuevoUsuario = new Usuario(null,correo,nombre,apellido, telefono, fecha_nacimiento,passEncriptada, id_rol, id_estado, id_cliente);
+    const nuevoUsuario = new Usuario(null, correo, nombre, apellido, telefono, fecha_nacimiento, passEncriptada, id_rol, id_estado, id_cliente);
 
     try {
+        const pool = await conectarDB();
         // Insertamos el Usuario con la contraseña encriptada
-        const id_usuario = await nuevoUsuario.insertar();
-        res.status(200).send({id_usuario, message: 'Usuario creado exitosamente.'});
+        const usuarioId = await nuevoUsuario.insertar(pool);
+        res.status(200).send({ id_usuario: usuarioId, message: 'Usuario creado exitosamente.' });
     } catch (err) {
-        res.status(500).send('Error al insertar usuario: '+err.message);
+        res.status(500).send('Error al insertar usuario: ' + err.message);
     }
 };
 
-exports.editarUsuario = async (req, res) => {
-    const { correo,nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente} = req.body;
+export const editarUsuario = async (req, res) => {
+    const { correo, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente } = req.body;
     const id = req.params.id;
     const id_usuario = req.user.id_usuario;
 
@@ -55,18 +54,19 @@ exports.editarUsuario = async (req, res) => {
     }
 
     // Creamos el objeto del usuario actualizado
-    const usuarioActualizado = new Usuario(id, correo, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente);
+    const usuarioActualizado = new Usuario(id, correo, nombre, apellido, telefono, fecha_nacimiento, null, id_rol, id_estado, id_cliente);
 
     try {
-        // Actulizamos en la base de datos
-        await usuarioActualizado.actualizar();
-        res.status(200).send({message: 'Usuario actualizado exitosamente.'});
+        const pool = await conectarDB();
+        // Actualizamos en la base de datos
+        await usuarioActualizado.actualizar(pool);
+        res.status(200).send({ message: 'Usuario actualizado exitosamente.' });
     } catch (err) {
-        res.status(500).send('Error al actualizar al usuario: '+err.message);
+        res.status(500).send('Error al actualizar al usuario: ' + err.message);
     }
 };
 
-exports.desactivarUsuario = async (req, res) => {
+export const desactivarUsuario = async (req, res) => {
     const id = req.params.id;
 
     const id_usuario = req.user.id_usuario;
@@ -76,10 +76,11 @@ exports.desactivarUsuario = async (req, res) => {
     }
 
     try {
+        const pool = await conectarDB();
         // Usamos una funcion estatica para desactivar al usuario
-        await Usuario.desactivar(id);
-        res.status(200).send({message: 'Usuario desactivado exitosamente.'});
+        await Usuario.desactivar(pool, id);
+        res.status(200).send({ message: 'Usuario desactivado exitosamente.' });
     } catch (err) {
-        res.status(500).send('Error al desactivar usuario: '+err.message);
+        res.status(500).send('Error al desactivar usuario: ' + err.message);
     }
-}
+};
