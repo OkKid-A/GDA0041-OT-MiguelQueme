@@ -106,6 +106,6 @@ export const desactivarCategoria = async (req, res) => {
         await Categoria.desactivarCategoria(pool, id_categoria);
         res.status(201).send('Categoria desactivada con exito.');
     } catch (err) {
-        res.status(500).send('Error al intentar desactivarCategoria la categoria: ' + err.message);
+        res.status(500).send('Error al intentar desactivar la categoria: ' + err.message);
     }
 };

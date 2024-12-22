@@ -40,7 +40,7 @@ export const insertarUsuario = async (req, res) => {
         const usuarioId = await nuevoUsuario.insertarUsuario(passEncriptada,pool);
         res.status(200).send({ id_usuario: usuarioId, message: 'Usuario creado exitosamente.' });
     } catch (err) {
-        res.status(500).send('Error al insertarUsuario usuario: ' + err.message);
+        res.status(500).send('Error al insertar al usuario: ' + err.message);
     }
 };
 
@@ -62,7 +62,7 @@ export const editarUsuario = async (req, res) => {
         await usuarioActualizado.actualizarUsuario(pool);
         res.status(200).send( 'Usuario actualizado exitosamente.' );
     } catch (err) {
-        res.status(500).send('Error al actualizarUsuario al usuario: ' + err.message);
+        res.status(500).send('Error al actualizar al usuario: ' + err.message);
     }
 };
 
@@ -81,6 +81,6 @@ export const desactivarUsuario = async (req, res) => {
         await Usuario.desactivarUsuarios(pool, id);
         res.status(200).send({ message: 'Usuario desactivado exitosamente.' });
     } catch (err) {
-        res.status(500).send('Error al desactivarCategoria usuario: ' + err.message);
+        res.status(500).send('Error al desactivar el usuario: ' + err.message);
     }
 };

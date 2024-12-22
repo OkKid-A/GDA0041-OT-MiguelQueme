@@ -1,5 +1,6 @@
 import { conectarDB } from '../config/db.js';
 import Cliente from '../models/cliente.js';
+import Categoria from "../models/categoria.js";
 
 export const obtenerClientes = async (req, res) => {
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
@@ -35,7 +36,7 @@ export const obtenerClientePorID = async (req, res) => {
 }
 
 export const crearCliente = async (req, res) => {
-    const { razon, nombre, direccion, correo, telefono } = req.body;
+    const { razon, nombre, direccion, correo, telefono, id_estado } = req.body;
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
 
     if (!id_usuario) {
@@ -43,19 +44,19 @@ export const crearCliente = async (req, res) => {
     }
 
     // Instanciamos al cliente que crearemos
-    const cliente = new Cliente(null, razon, nombre, direccion, correo, telefono);
+    const cliente = new Cliente(null, razon, nombre, direccion, correo, telefono, id_estado);
 
     try {
         const pool = await conectarDB();
         const id_cliente = await cliente.insertarCliente(pool);
         return res.status(200).send({ id_cliente, message: 'El cliente ha sido creado con exito.' });
     } catch (err) {
-        return res.status(400).send('Error al insertarUsuario al nuevo cliente: ' + err.message);
+        return res.status(400).send('Error al insertar al nuevo cliente: ' + err.message);
     }
 };
 
 export const editarCliente = async (req, res) => {
-    const { razon, nombre, direccion, correo, telefono } = req.body;
+    const { razon, nombre, direccion, correo, telefono, id_estado } = req.body;
     const id_cliente = req.params.id;
 
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
@@ -65,14 +66,31 @@ export const editarCliente = async (req, res) => {
     }
 
     // Instanciamos el cliente que enviaremos como la informacion actualizada a la db
-    const cliente = new Cliente(id_cliente, razon, nombre, direccion, correo, telefono);
+    const cliente = new Cliente(id_cliente, razon, nombre, direccion, correo, telefono, id_estado);
 
     try {
         const pool = await conectarDB();
         await cliente.actualizarCliente(pool);
         return res.status(200).send('El cliente ha sido actualizado con exito.');
     } catch (err) {
-        return res.status(400).send('Error al actualizarUsuario al cliente: ' + err.message);
+        return res.status(400).send('Error al actualizar al cliente: ' + err.message);
+    }
+};
+
+export const desactivarCliente = async (req, res) => {
+    const id_cliente = req.params.id;
+    const userId = req.user.id_usuario;
+
+    if (!userId) {
+        return res.status(401).send('No autorizado: No has iniciado sesion.');
+    }
+
+    try {
+        const pool = await conectarDB();
+        await Cliente.desactivarCliente(pool, id_cliente);
+        res.status(201).send('Cliente desactivado con exito.');
+    } catch (err) {
+        res.status(500).send('Error al intentar desactivar el cliente: ' + err.message);
     }
 };
 

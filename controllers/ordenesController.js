@@ -53,8 +53,8 @@ export const actualizarOrden = async (req, res) => {
         correo,
         fecha_entrega,
         total_orden,
-        null, // fecha_creacion is not updated
-        null, // id_usuario is not updated
+        null, // fecha_creacion no se actualizara
+        null, // id_usuario no se puede actualizar
         id_estado
     );
 
@@ -63,7 +63,7 @@ export const actualizarOrden = async (req, res) => {
         await orden.actualizarOrden(pool);
         res.status(200).send({ orden, message: 'Orden actualizada con éxito.' });
     } catch (err) {
-        res.status(500).send('Error al actualizarCategoria la orden: ' + err.message);
+        res.status(500).send('Error al actualizar la orden: ' + err.message);
     }
 };
 
@@ -103,6 +103,6 @@ export const desactivarOrden = async (req, res) => {
         await Orden.desactivarOrden(pool, id_orden);
         res.status(200).send('Se ha desactivado la orden con éxito.');
     } catch (err) {
-        res.status(500).send('Error al desactivarCategoria la orden: ' + err.message);
+        res.status(500).send('Error al desactivar la orden: ' + err.message);
     }
 };
