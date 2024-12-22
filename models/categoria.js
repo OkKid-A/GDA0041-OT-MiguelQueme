@@ -37,7 +37,7 @@ class Categoria {
     }
 
     async actualizarCategoria(pool) {
-        const resultado = await pool.request()
+        await pool.request()
             .input('id_categoria', sql.Int, this.id_categoria)
             .input('nombre', sql.NVarChar, this.nombre)
             .input('fecha_creacion', sql.Date, this.fecha_creacion)
@@ -47,7 +47,7 @@ class Categoria {
     }
 
     static async desactivarCategoria(pool, id_categoria) {
-        const resultado = await pool.request()
+        await pool.request()
             .input('id_categoria', sql.Int, id_categoria)
             .execute(`desactivarCategoria`);
     }
