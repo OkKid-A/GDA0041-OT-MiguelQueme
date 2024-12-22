@@ -1,24 +1,49 @@
-const express = require('express');
-const session = require('express-session');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const {connectDB, sql, conectarDB} = require('./config/db');
+import express from 'express';
+import session from 'express-session';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import { sql, conectarDB } from './config/db.js';
+import autenticacionToken from './middleware/autenticacionToken.js';
+import generarAutToken from './middleware/generarAuthToken.js';
+import dotenv from 'dotenv';
+import createError from 'http-errors';
+dotenv.config();
+
+import categoriasRouter from './routes/categoriasRouter.js';
+import productosRouter from './routes/productosRouter.js';
+import estadosRouter from './routes/estadosRouter.js';
+import authRouter from './routes/authRouter.js';
+import usuariosRouter from './routes/usuariosRouter.js';
+import clientesRouter from './routes/clientesRouter.js';
+import ordenesRouter from './routes/ordenesRouter.js';
 
 const app = express();
 
-// Nos conectamos a la base de datos
-conectarDB();
+// Connect to the database
+await conectarDB().catch(err => {
+    console.error('Error en la conexión a la base de datos:', err);
+    process.exit(1);
+});
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(path.dirname(''), 'public')));
 
-// Manejamos las sesiones
+// Define routes
+app.use('/categorias', categoriasRouter);
+app.use('/productos', productosRouter);
+app.use('/estados', estadosRouter);
+app.use('/auth', authRouter);
+app.use('/usuarios', usuariosRouter);
+app.use('/clientes', clientesRouter);
+app.use('/ordenes', ordenesRouter);
+
+// Handle sessions
 app.use(session({
-    secret: process.env.SESSION_SECRET, // Usamos una llave segura y la guardamos en el archivo .env
+    secret: process.env.SESSION_SECRET, // Secure key from .env file
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -26,13 +51,27 @@ app.use(session({
     }
 }));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// Catch 404 and forward to error handler
+app.use((req, res, next) => {
+    next(createError(404));
+});
 
-// Iniciamos el servidor
+// Error handler
+app.use((err, req, res, next) => {
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.status(err.status || 500);
+    res.json({
+        message: res.locals.message,
+        error: res.locals.error
+    });
+});
+
+
+// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Iniciamos el servidor en ${PORT}`);
-})
+    console.log(`Server started on port ${PORT}`);
+});
 
-module.exports = app;
+export default app;
