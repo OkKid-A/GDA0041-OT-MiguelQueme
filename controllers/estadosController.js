@@ -11,7 +11,7 @@ export const obtenerEstados = async (req, res) => {
 
     try {
         const pool = await conectarDB();
-        const resultado = await pool.request().execute('estadosTodos');
+        const resultado = await pool.request().query('SELECT * FROM estadosTodos;');
         res.json(resultado.recordset);
     } catch (err) {
         res.status(404).send('Error al recuperar productos activos: ' + err.message);
@@ -32,7 +32,7 @@ export const insertarEstado = async (req, res) => {
         const id_estado = await estado.insertarEstado(pool);
         res.status(201).send({ id_estado, message: 'Estado creado exitosamente' });
     } catch (err) {
-        res.status(500).send('Error al insertar el estado: ' + err.message);
+        res.status(500).send('Error al insertarUsuario el estado: ' + err.message);
     }
 };
 
@@ -51,6 +51,6 @@ export const editarEstado = async (req, res) => {
         await estado.actualizarEstado(pool);
         res.status(201).send({ id_estado, message: 'Estado editado exitosamente' });
     } catch (err) {
-        res.status(500).send('Error al actualizar el estado: ' + err.message);
+        res.status(500).send('Error al actualizarUsuario el estado: ' + err.message);
     }
 };

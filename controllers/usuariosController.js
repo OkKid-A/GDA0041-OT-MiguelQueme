@@ -32,15 +32,15 @@ export const insertarUsuario = async (req, res) => {
     const passEncriptada = hash.digest('hex');
 
     // Creamos un objeto Usuario
-    const nuevoUsuario = new Usuario(null, correo, nombre, apellido, telefono, fecha_nacimiento, passEncriptada, id_rol, id_estado, id_cliente);
+    const nuevoUsuario = new Usuario(null, correo, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente);
 
     try {
         const pool = await conectarDB();
         // Insertamos el Usuario con la contraseña encriptada
-        const usuarioId = await nuevoUsuario.insertar(pool);
+        const usuarioId = await nuevoUsuario.insertarUsuario(passEncriptada,pool);
         res.status(200).send({ id_usuario: usuarioId, message: 'Usuario creado exitosamente.' });
     } catch (err) {
-        res.status(500).send('Error al insertar usuario: ' + err.message);
+        res.status(500).send('Error al insertarUsuario usuario: ' + err.message);
     }
 };
 
@@ -59,10 +59,10 @@ export const editarUsuario = async (req, res) => {
     try {
         const pool = await conectarDB();
         // Actualizamos en la base de datos
-        await usuarioActualizado.actualizar(pool);
-        res.status(200).send({ message: 'Usuario actualizado exitosamente.' });
+        await usuarioActualizado.actualizarUsuario(pool);
+        res.status(200).send( 'Usuario actualizado exitosamente.' );
     } catch (err) {
-        res.status(500).send('Error al actualizar al usuario: ' + err.message);
+        res.status(500).send('Error al actualizarUsuario al usuario: ' + err.message);
     }
 };
 
@@ -77,10 +77,10 @@ export const desactivarUsuario = async (req, res) => {
 
     try {
         const pool = await conectarDB();
-        // Usamos una funcion estatica para desactivar al usuario
-        await Usuario.desactivar(pool, id);
+        // Usamos una funcion estatica para desactivarCategoria al usuario
+        await Usuario.desactivarUsuarios(pool, id);
         res.status(200).send({ message: 'Usuario desactivado exitosamente.' });
     } catch (err) {
-        res.status(500).send('Error al desactivar usuario: ' + err.message);
+        res.status(500).send('Error al desactivarCategoria usuario: ' + err.message);
     }
 };

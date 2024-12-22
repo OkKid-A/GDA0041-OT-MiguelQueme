@@ -47,10 +47,10 @@ export const crearCliente = async (req, res) => {
 
     try {
         const pool = await conectarDB();
-        const id_cliente = await cliente.insertar(pool);
+        const id_cliente = await cliente.insertarCliente(pool);
         return res.status(200).send({ id_cliente, message: 'El cliente ha sido creado con exito.' });
     } catch (err) {
-        return res.status(400).send('Error al insertar al nuevo cliente: ' + err.message);
+        return res.status(400).send('Error al insertarUsuario al nuevo cliente: ' + err.message);
     }
 };
 
@@ -69,10 +69,10 @@ export const editarCliente = async (req, res) => {
 
     try {
         const pool = await conectarDB();
-        await cliente.actualizar(pool);
+        await cliente.actualizarCliente(pool);
         return res.status(200).send('El cliente ha sido actualizado con exito.');
     } catch (err) {
-        return res.status(400).send('Error al actualizar al cliente: ' + err.message);
+        return res.status(400).send('Error al actualizarUsuario al cliente: ' + err.message);
     }
 };
 

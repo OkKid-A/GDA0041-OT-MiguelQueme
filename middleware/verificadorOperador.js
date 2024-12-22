@@ -2,7 +2,7 @@ function verificadorOperador(req, res, next) {
     // Middleware para permitir acceso solo a operadores
     const user = req.user;
     // Verificamos que la informacion de usuario este presente y su rol sea operador
-    if (req.user && req.user.rol === 'operador') {
+    if (req.user && req.user.rol.toLowerCase() === 'operador') {
         return next(); // Seguimos con la ejecucion
     }
 

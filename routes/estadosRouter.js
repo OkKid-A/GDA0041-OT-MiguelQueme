@@ -10,6 +10,6 @@ const router = express.Router();
 
 router.get('/', autenticacionToken, obtenerEstados);
 router.post('/', autenticacionToken, insertarEstado);
-router.put('/', autenticacionToken, editarEstado);
+router.put('/:id', autenticacionToken, editarEstado);
 
 export default router;

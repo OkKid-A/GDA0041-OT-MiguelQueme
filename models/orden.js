@@ -15,15 +15,13 @@ class Orden {
         this.id_estado = id_estado;
     }
 
-    // Funcion para insertar una orden junto con el json de sus detalles
+    // Funcion para insertarUsuario una orden junto con el json de sus detalles
     static async insertarOrdenConDetalles(fecha_entrega, pool, json, id_usuario){
-        const resultado = await pool.request()
-            .input('fecha_entrega', fecha_entrega)
-            .input('id_usuario', id_usuario)
-            .input('json', json)
+        await pool.request()
+            .input('fecha_entrega', sql.Date, fecha_entrega)
+            .input('id_usuario', sql.Int, id_usuario)
+            .input('json', sql.NVarChar, json)
             .execute(`insertarOrdenConDetalles`);
-
-        return resultado.recordset[0];
     }
 
     async actualizarOrden(pool){
@@ -42,7 +40,7 @@ class Orden {
 
     static async obtenerOrdenes(pool){
         return await pool.request()
-            .execute(`seleccionarTodasOrdenes`);
+            .query(`SELECT * FROM seleccionarTodasOrdenes;`);
     }
 
     static async obtenerOrdenPorId(pool, id_orden){

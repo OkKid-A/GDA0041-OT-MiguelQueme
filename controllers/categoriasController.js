@@ -53,7 +53,7 @@ export const obtenerCategoriaPorId = async (req, res) => {
     }
 };
 
-// Endpoint para insertar una categoria
+// Endpoint para insertarUsuario una categoria
 export const insertarCategoriaProducto = async (req, res) => {
     const { nombre, id_estado } = req.body;
     const userId = req.user.id_usuario;
@@ -65,14 +65,14 @@ export const insertarCategoriaProducto = async (req, res) => {
     try {
         const pool = await conectarDB();
         const categoria = new Categoria(null, nombre, id_estado, null);
-        const id_categoria = await categoria.insertar(pool, userId);
+        const id_categoria = await categoria.insertarCategoria(pool, userId);
         res.status(201).json({ id_categoria, message: 'Categoría de producto creada exitosamente' });
     } catch (err) {
         res.status(500).json({ message: 'Error al crear la categoría de producto', error: err.message });
     }
 };
 
-// Endpoint para actualizar una categoria
+// Endpoint para actualizarUsuario una categoria
 export const editarCategoria = async (req, res) => {
     const id_categoria = req.params.id;
     const { nombre, id_estado, fecha_creacion } = req.body;
@@ -85,7 +85,7 @@ export const editarCategoria = async (req, res) => {
     try {
         const pool = await conectarDB();
         const categoria = new Categoria(id_categoria, nombre, id_estado, fecha_creacion);
-        await categoria.actualizar(pool);
+        await categoria.actualizarCategoria(pool);
         res.status(201).json('Categoría de producto editada exitosamente');
     } catch (err) {
         res.status(500).json({ message: 'Error al editar la categoría de producto', error: err.message });
@@ -103,9 +103,9 @@ export const desactivarCategoria = async (req, res) => {
 
     try {
         const pool = await conectarDB();
-        await Categoria.desactivar(pool, id_categoria);
+        await Categoria.desactivarCategoria(pool, id_categoria);
         res.status(201).send('Categoria desactivada con exito.');
     } catch (err) {
-        res.status(500).send('Error al intentar desactivar la categoria: ' + err.message);
+        res.status(500).send('Error al intentar desactivarCategoria la categoria: ' + err.message);
     }
 };

@@ -17,6 +17,6 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "mssql": "^11.0.1",
-    "redis": "^4.7.0"
+    "node-cache": "^5.1.2"
   }
 }

@@ -18,10 +18,11 @@ let pool;
 async function conectarDB() {
     if (!pool) { //Si la conexion no ha sido creada la creamos, si ya existe usamos la misma conexion
         try {
-            await sql.connect(config);
+            pool = await sql.connect(config);
             console.log('Conectado exitosamente a la DB');
         } catch (e) {
             console.error('Conexion fallida: ' + e.message);
+            pool = null;
         }
     }
     return pool;

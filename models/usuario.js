@@ -45,18 +45,18 @@ class Usuario {
         return Usuario.convertirRecordset(resultado.recordset[0]);
     }
 
-    static async desactivar(id_usuario) {
-        const pool = await conectarDB();
-        await pool.request()
-            .input('id_usuario', sql.Int, id_usuario)
-            .query(`
-                EXEC bloquearUsuario
-                @id_usuario = @id_usuario;
-            `);
+    static async obtenerUsuarios(pool) {
+        const resultado = await pool.request().query("SELECT * FROM seleccionarTodosUsuario;");
+        return resultado.recordset;
     }
 
-    async insertar() {
-        const pool = await conectarDB();
+    static async desactivarUsuarios(pool,id_usuario) {
+        await pool.request()
+            .input('id_usuario', sql.Int, id_usuario)
+            .execute(`bloquearUsuario`);
+    }
+
+    async insertarUsuario(password, pool) {
 
         const resultado = await pool.request()
             .input('correo', sql.NVarChar, this.correo)
@@ -64,27 +64,16 @@ class Usuario {
             .input('apellido', sql.NVarChar, this.apellido)
             .input('telefono', sql.VarChar, this.telefono)
             .input('fecha_nacimiento', sql.Date, this.fecha_nacimiento)
-            .input('password', sql.VarChar, this.password)
-            .input('id_rol', sql.Int, this.id_rol)
-            .input('id_estado', sql.Int, this.id_estado)
+            .input('password', sql.VarChar, password)
+            .input('id_rol', sql.Int, this.rol)
+            .input('id_estado', sql.Int, this.estado)
             .input('id_cliente', sql.Int, this.id_cliente)
-            .query(`
-                EXEC insertarUsuario
-                @correo = @correo,
-                @nombre = @nombre,
-                @apellido = @apellido,
-                @telefono = @telefono,
-                @fecha_nacimiento = @fecha_nacimiento,
-                @password = @password,
-                @id_rol = @id_rol,
-                @id_estado = @id_estado,
-                @id_cliente = @id_cliente;
-            `);
+            .execute(`insertarUsuario`);
 
         return resultado.recordset[0].id_usuario;
     }
 
-    async actualizar(pool) {
+    async actualizarUsuario(pool) {
         await pool.request()
             .input('id_usuario', sql.Int, this.id_usuario)
             .input('correo', sql.NVarChar, this.correo)
@@ -95,18 +84,7 @@ class Usuario {
             .input('id_rol', sql.Int, this.id_rol)
             .input('id_estado', sql.Int, this.id_estado)
             .input('id_cliente', sql.Int, this.id_cliente)
-            .query(`
-                EXEC actualizarUsuario
-                @id_usuario = @id_usuario,
-                @correo = @correo,
-                @nombre = @nombre,
-                @apellido = @apellido,
-                @telefono = @telefono,
-                @fecha_nacimiento = @fecha_nacimiento,
-                @id_rol = @id_rol,
-                @id_estado = @id_estado,
-                @id_cliente = @id_cliente;
-            `);
+            .execute(`actualizarUsuario`);
     }
 }
 

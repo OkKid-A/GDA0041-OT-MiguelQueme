@@ -23,14 +23,11 @@ class Producto {
     static async obtenerPorId(pool, id_producto) {
         const resultado = await pool.request()
             .input('id_producto', sql.Int, id_producto)
-            .query(`
-                EXEC seleccionarProducto 
-                @id_producto = @id_producto
-            `);
+            .execute(`seleccionarProducto`);
         return resultado.recordset[0];
     }
 
-    async insertar(pool, id_usuario) {
+    async insertarProducto(pool, id_usuario) {
         const resultado = await pool.request()
             .input('nombre', sql.NVarChar, this.nombre)
             .input('marca', sql.NVarChar, this.marca)
@@ -41,24 +38,13 @@ class Producto {
             .input('id_categoria', sql.Int, this.id_categoria)
             .input('id_usuario', sql.Int, id_usuario)
             .input('id_estado', sql.Int, this.id_estado)
-            .query(`
-                EXEC insertarProducto 
-                @nombre = @nombre, 
-                @marca = @marca, 
-                @codigo = @codigo, 
-                @stock = @stock, 
-                @precio = @precio, 
-                @foto = @foto, 
-                @id_categoria = @id_categoria, 
-                @id_usuario = @id_usuario, 
-                @id_estado = @id_estado
-            `);
+            .execute(`insertarProducto`);
         this.id_producto = resultado.recordset[0].id_producto;
         return this.id_producto;
     }
 
-    async actualizar(pool) {
-        const resultado = await pool.request()
+    async actualizarProducto(pool) {
+        await pool.request()
             .input('id_producto', sql.Int, this.id_producto)
             .input('nombre', sql.NVarChar, this.nombre)
             .input('marca', sql.NVarChar, this.marca)
@@ -69,30 +55,13 @@ class Producto {
             .input('foto', sql.NVarChar, this.foto)
             .input('id_categoria', sql.Int, this.id_categoria)
             .input('id_estado', sql.Int, this.id_estado)
-            .query(`
-                EXEC actualizarProducto
-                @id_producto = @id_producto, 
-                @nombre = @nombre, 
-                @marca = @marca, 
-                @codigo = @codigo, 
-                @stock = @stock, 
-                @precio = @precio, 
-                @fecha_creacion = @fecha_creacion, 
-                @foto = @foto, 
-                @id_categoria = @id_categoria, 
-                @id_estado = @id_estado
-            `);
-        return resultado;
+            .execute(`actualizarProducto`);
     }
 
     static async desactivar(pool, id_producto) {
-        const resultado = await pool.request()
+        await pool.request()
             .input('id_producto', sql.Int, id_producto)
-            .query(`
-                EXEC desactivarProducto 
-                @id_producto = @id_producto
-            `);
-        return resultado;
+            .execute(`desactivarProducto`);
     }
 }
 

@@ -3,7 +3,7 @@ import session from 'express-session';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import { sql, conectarDB } from './config/db.js'; // Add .js extension
+import { sql, conectarDB } from './config/db.js';
 import autenticacionToken from './middleware/autenticacionToken.js';
 import generarAutToken from './middleware/generarAuthToken.js';
 import dotenv from 'dotenv';
@@ -22,7 +22,7 @@ const app = express();
 
 // Connect to the database
 await conectarDB().catch(err => {
-    console.error('Database connection failed:', err);
+    console.error('Error en la conexión a la base de datos:', err);
     process.exit(1);
 });
 
@@ -50,13 +50,6 @@ app.use(session({
         secure: false
     }
 }));
-
-// Endpoint to log in and return a token
-app.post('/login', (req, res) => {
-    const user = { id: 1, name: 'John Doe' }; // Replace with actual user verification logic
-    const token = generarAutToken(user);
-    res.json({ token });
-});
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {

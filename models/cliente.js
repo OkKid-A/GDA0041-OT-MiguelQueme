@@ -12,39 +12,38 @@ class Cliente {
     }
 
     static async obtenerClientes(pool) {
-        const resultado = await pool.request().execute("selecccionarTodosClientes");
+        const resultado = await pool.request().query("SELECT * FROM seleccionarTodosClientes;");
         return resultado.recordset;
     }
 
     static async obtenerCliente(pool, id_cliente) {
         const resultado = await pool.request()
             .input('id_cliente', sql.Int, id_cliente)
-            .execute("seleccionCliente");
+            .execute("seleccionarCliente");
         return resultado.recordset[0];
     }
 
-    async insertar(pool) {
+    async insertarCliente(pool) {
         const resultado = await pool.request()
             .input('razon_social', sql.NVarChar, this.razon)
             .input('nombre_comercial', sql.NVarChar, this.nombre)
             .input('direccion_entrega', sql.NVarChar, this.direccion)
             .input('correo_empresarial', sql.NVarChar, this.correo)
-            .input('telefono_empresarial', sql.VarChar, this.telefono)
+            .input('telefono_empresarial', sql.Int, this.telefono)
             .execute("insertarCliente");
         this.id_cliente = resultado.recordset[0].id_cliente;
         return this.id_cliente;
     }
 
-    async actualizar(pool) {
-        const resultado = await pool.request()
+    async actualizarCliente(pool) {
+        await pool.request()
             .input('id_cliente', sql.Int, this.id_cliente)
             .input('razon_social', sql.NVarChar, this.razon)
             .input('nombre_comercial', sql.NVarChar, this.nombre)
             .input('direccion_entrega', sql.NVarChar, this.direccion)
             .input('correo_empresarial', sql.NVarChar, this.correo)
-            .input('telefono_empresarial', sql.VarChar, this.telefono)
+            .input('telefono_empresarial', sql.Int, this.telefono)
             .execute("actualizarCliente");
-        return resultado;
     }
 }
 

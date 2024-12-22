@@ -26,8 +26,9 @@ export const insertarOrdenConDetalle = async (req, res) => {
     }
 
     try {
+        const jsonString = JSON.stringify(json);
         const pool = await conectarDB();
-        await Orden.insertarOrdenConDetalles(fecha_entrega, pool, json, id_usuario);
+        await Orden.insertarOrdenConDetalles(fecha_entrega, pool, jsonString, id_usuario);
         res.status(200).send('Orden ingresada con éxito.');
     } catch (err) {
         res.status(500).send('Error al ingresar la orden: ' + err.message);
@@ -62,7 +63,7 @@ export const actualizarOrden = async (req, res) => {
         await orden.actualizarOrden(pool);
         res.status(200).send({ orden, message: 'Orden actualizada con éxito.' });
     } catch (err) {
-        res.status(500).send('Error al actualizar la orden: ' + err.message);
+        res.status(500).send('Error al actualizarCategoria la orden: ' + err.message);
     }
 };
 
@@ -102,6 +103,6 @@ export const desactivarOrden = async (req, res) => {
         await Orden.desactivarOrden(pool, id_orden);
         res.status(200).send('Se ha desactivado la orden con éxito.');
     } catch (err) {
-        res.status(500).send('Error al desactivar la orden: ' + err.message);
+        res.status(500).send('Error al desactivarCategoria la orden: ' + err.message);
     }
 };

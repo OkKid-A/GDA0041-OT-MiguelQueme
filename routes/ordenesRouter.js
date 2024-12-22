@@ -15,6 +15,6 @@ router.get('/', autenticacionToken, obtenerOrdenes);
 router.get('/:id', autenticacionToken, obtenerOrdenPorID);
 router.post('/', autenticacionToken, insertarOrdenConDetalle);
 router.put('/:id', autenticacionToken, verificadorOperador, actualizarOrden);
-router.delete('/', autenticacionToken, verificadorOperador, desactivarOrden);
+router.delete('/:id', autenticacionToken, verificadorOperador, desactivarOrden);
 
 export default router;

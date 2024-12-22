@@ -1,32 +1,33 @@
+import NodeCache from 'node-cache';
 import jwt from 'jsonwebtoken';
-import { createClient } from 'redis';
-import { promisify } from 'util';
 
-const client = createClient();
-const getAsync = promisify(client.set).bind(client);
+const tokenBlacklist = new NodeCache({ stdTTL: 86400, checkperiod: 120 });
 
-const autenticacionToken = async (req, res, next) => {
-    const authHeader = req.headers['autorizador']; // Obtenemos el token del header autorizacion
+const autenticacionToken = (req, res, next) => {
+    const authHeader = req.headers['autorizador'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
         return res.status(401).json({ message: 'Acceso denegado. Token no encontrado.' });
     }
 
-    try {
-        // Revisamos que el token no este en la blacklist debido a un cierre de sesion previo
-        const baneado = await getAsync(token);
-        if (baneado) {
-            return res.status(403).json({ message: 'Acceso no autorizado. Tu sesión ha finalizado.' });
-        }
+    // Revisamos si el token ya ha sido registrado en la blacklist
+    if (tokenBlacklist.has(token)) {
+        return res.status(403).json({ message: 'Acceso no autorizado. Tu sesión ha finalizado.' });
+    }
 
-        // Verificamos el token con una llave segura guardada en un archivo .env
-        const descifrado = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = descifrado.user;
+    try {
+        req.user = jwt.verify(token, process.env.JWT_SECRET);
         next();
     } catch (err) {
         res.status(403).json({ message: 'Token invalido.' });
     }
 };
 
+// Funcion para añadir un token a la blacklist al cerrar sesión
+const blacklistToken = (token, ttl = 86400) => {
+    tokenBlacklist.set(token, true, ttl);
+};
+
+export { blacklistToken };
 export default autenticacionToken;

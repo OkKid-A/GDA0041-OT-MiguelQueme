@@ -48,10 +48,10 @@ export const insertarProducto = async (req, res) => {
     try {
         const pool = await conectarDB();
         const producto = new Producto(null, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado);
-        const id_producto = await producto.insertar(pool, id_usuario);
+        const id_producto = await producto.insertarProducto(pool, id_usuario);
         res.status(201).send({ id_producto, message: 'Producto creado exitosamente' });
     } catch (err) {
-        res.status(500).send('Error al insertar el producto: ' + err.message);
+        res.status(500).send('Error al insertarUsuario el producto: ' + err.message);
     }
 }
 
@@ -68,10 +68,10 @@ export const editarProducto = async (req, res) => {
     try {
         const pool = await conectarDB();
         const producto = new Producto(id_producto, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado, fecha_creacion);
-        await producto.actualizar(pool);
+        await producto.actualizarProducto(pool);
         res.status(201).send('Producto actualizado con exito.');
     } catch (err) {
-        res.status(500).send('Error al intentar actualizar el producto: ' + err.message);
+        res.status(500).send('Error al intentar actualizarUsuario el producto: ' + err.message);
     }
 };
 
@@ -89,6 +89,6 @@ export const desactivarProducto = async (req, res) => {
         await Producto.desactivar(pool, id_producto);
         res.status(201).send('Producto desactivado con exito.');
     } catch (err) {
-        res.status(500).send('Error al intentar desactivar el producto: ' + err.message);
+        res.status(500).send('Error al intentar desactivarCategoria el producto: ' + err.message);
     }
 };

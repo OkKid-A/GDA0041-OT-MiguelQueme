@@ -7,14 +7,14 @@ class Estado {
     }
 
     async actualizarEstado(pool) {
-        await pool.request
+        await pool.request()
             .input('nombre', sql.NVarChar(45) ,this.nombre)
-            .input('Estado._id_estado', sql.Int, this.id_estado)
+            .input('id_estado', sql.Int, this.id_estado)
             .execute('actualizarEstado');
     }
 
     async insertarEstado(pool) {
-        const resultado = await pool.request
+        const resultado = await pool.request()
             .input('nombre', sql.NVarChar(45) ,this.nombre)
             .execute('insertarEstado');
 

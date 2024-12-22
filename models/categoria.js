@@ -22,21 +22,21 @@ class Categoria {
     static async obtenerPorId(pool, id_categoria) {
         const resultado = await pool.request()
             .input('id_categoria', sql.Int, id_categoria)
-            .execute(` seleccionarCategoria  `);
+            .execute(`seleccionarCategoria`);
         return resultado.recordset[0];
     }
 
-    async insertar(pool, userId) {
+    async insertarCategoria(pool, userId) {
         const resultado = await pool.request()
             .input('nombre', sql.NVarChar, this.nombre)
             .input('id_estado', sql.Int, this.id_estado)
             .input('id_usuario', sql.Int, userId)
-            .execute(`insertarCategoriaProducto `);
+            .execute(`insertarCategoriaProducto`);
         this.id_categoria = resultado.recordset[0].id_categoria;
         return this.id_categoria;
     }
 
-    async actualizar(pool) {
+    async actualizarCategoria(pool) {
         const resultado = await pool.request()
             .input('id_categoria', sql.Int, this.id_categoria)
             .input('nombre', sql.NVarChar, this.nombre)
@@ -44,14 +44,12 @@ class Categoria {
             .input('id_estado', sql.Int, this.id_estado)
             .execute(`actualizarCategoriaProducto`);
 
-        return resultado.recordset[0];
     }
 
-    static async desactivar(pool, id_categoria) {
+    static async desactivarCategoria(pool, id_categoria) {
         const resultado = await pool.request()
             .input('id_categoria', sql.Int, id_categoria)
-            .execute(`inactivarCategoria`);
-        return resultado.recordset[0];
+            .execute(`desactivarCategoria`);
     }
 }
 

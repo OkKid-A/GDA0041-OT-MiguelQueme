@@ -1,13 +1,9 @@
 import crypto from 'crypto';
 import generarAutToken from '../middleware/generarAuthToken.js';
 import { sql, conectarDB } from '../config/db.js';
-import { createClient } from 'redis';
-import { promisify } from 'util';
-import jwt from 'jsonwebtoken';
 import Usuario from '../models/usuario.js';
-
-const client = createClient();
-const setAsync = promisify(client.set).bind(client);
+import NodeCache from "node-cache";
+import autenticacionToken, {blacklistToken} from "../middleware/autenticacionToken.js";
 
 // Enpoint para verificar la informacion de un usuario y crear un token valido si es correcta
 export const login = async (req, res) => {
@@ -53,14 +49,11 @@ export const login = async (req, res) => {
 // Endpoint para cerrar sesion en la api para mayor seguridad
 export const logout = async (req, res) => {
     try {
-        const authHeader = req.headers['autorizador']; // Obtenemos el token del header autorizacion
+        const authHeader = req.headers['autorizador']; // Obtenemos el token del header autorizador
         const token = authHeader && authHeader.split(' ')[1];
-        const descifrado = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = descifrado.user.id_usuario;
 
         // Guardamos el token en una blacklist por el resto de su existencia
-        await setAsync(token, userId, 'EX', descifrado.exp - Math.floor(Date.now() / 1000));
-
+        blacklistToken(token)
         res.status(200).send({ message: 'Se cerro la sesion con exito.' });
     } catch (err) {
         res.status(500).send({ message: 'Error al intentar cerrar la sesion: ' + err.message });
