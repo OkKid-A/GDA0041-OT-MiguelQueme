@@ -5,11 +5,12 @@ import {
     editarEstado
 } from '../controllers/estadosController.js';
 import autenticacionToken from '../middleware/autenticacionToken.js';
+import verificarRol from "../middleware/verificarRol.js";
 
 const router = express.Router();
 
-router.get('/', autenticacionToken, obtenerEstados);
-router.post('/', autenticacionToken, insertarEstado);
-router.put('/:id', autenticacionToken, editarEstado);
+router.get('/', autenticacionToken, verificarRol(Roles.OPERADOR),obtenerEstados);
+router.post('/', autenticacionToken, verificarRol(Roles.OPERADOR),insertarEstado);
+router.put('/:id', autenticacionToken, verificarRol(Roles.OPERADOR),editarEstado);
 
 export default router;

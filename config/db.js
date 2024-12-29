@@ -5,7 +5,7 @@ const config = {
     user: 'SA',
     password: 'Hura2341',
     server: 'localhost',
-    database: 'GDA0041_OT_MiguelQueme',
+    database: 'GDA0044_OT_MiguelQueme',
     options: {
         encrypt: true,
         trustServerCertificate: true

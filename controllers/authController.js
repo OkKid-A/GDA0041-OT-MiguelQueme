@@ -4,6 +4,7 @@ import { sql, conectarDB } from '../config/db.js';
 import Usuario from '../models/usuario.js';
 import NodeCache from "node-cache";
 import autenticacionToken, {blacklistToken} from "../middleware/autenticacionToken.js";
+import Estados from "../utils/Estados.js";
 
 // Enpoint para verificar la informacion de un usuario y crear un token valido si es correcta
 export const login = async (req, res) => {
@@ -23,18 +24,18 @@ export const login = async (req, res) => {
         }
 
         // Confirmamos que el estado del usuario sea activo
-        switch (usuario.estado.toLowerCase()) {
-            case 'inactivo':
+        switch (usuario.estado) {
+            case Estados.INACTIVO:
                 return res.status(403).send({
                     estado: usuario.estado,
                     message: 'Acceso no autorizado por usuario inactivo en el sistema.'
                 });
-            case 'pendiente':
+            case Estados.PENDIENTE:
                 return res.status(401).send({
                     estado: usuario.estado,
                     message: 'Usuario pendiente de verificar su correo electronico.'
                 });
-            case 'activo':
+            case Estados.ACTIVO:
                 // Encriptamos la informacion del usuario para regresarla al frontend
                 const token = generarAutToken(usuario);
                 return res.status(201).send({ auth: token, message: 'Inicio de sesión exitoso.' });
