@@ -3,7 +3,7 @@ node_modules/
 npm-debug.log
 
 # IntelliJ IDEA
-.idea/
+backend/.idea/
 *.iml
 out/
 
@@ -43,12 +43,12 @@ jspm_packages/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+backend/.env
 .env.test
 .env.production
 
 # JetBrains
-.idea/
+backend/.idea/
 *.iws
 *.iml
 .idea_modules/
@@ -57,7 +57,7 @@ jspm_packages/
 *.iml
 *.ipr
 *.iws
-.idea/
+backend/.idea/
 
 # Others
 .vscode/
