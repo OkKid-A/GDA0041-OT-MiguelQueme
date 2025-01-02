@@ -8,6 +8,7 @@ import {
 } from '../controllers/productosController.js';
 import autenticacionToken from '../middleware/autenticacionToken.js';
 import verificarRol from "../middleware/verificarRol.js";
+import Roles from "../utils/Roles.js"
 
 const router = express.Router();
 

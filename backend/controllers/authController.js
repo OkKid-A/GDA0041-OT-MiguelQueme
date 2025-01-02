@@ -5,6 +5,7 @@ import Usuario from '../models/usuario.js';
 import NodeCache from "node-cache";
 import autenticacionToken, {blacklistToken} from "../middleware/autenticacionToken.js";
 import Estados from "../utils/Estados.js";
+import jwt from "jsonwebtoken";
 
 // Enpoint para verificar la informacion de un usuario y crear un token valido si es correcta
 export const login = async (req, res) => {
@@ -38,7 +39,14 @@ export const login = async (req, res) => {
             case Estados.ACTIVO:
                 // Encriptamos la informacion del usuario para regresarla al frontend
                 const token = generarAutToken(usuario);
-                return res.status(201).send({ auth: token, message: 'Inicio de sesión exitoso.' });
+                res.cookie('authToken', token, { // Guardamos el token en una cookie segura
+                    httpOnly: true,
+                    secure: 'auto',
+                    sameSite: 'none',
+                    maxAge: 24*60*60*1000,
+                    path: '/'
+                })
+                return res.status(201).send({token: token,message: 'Inicio de sesión exitoso.', rol: usuario.rol});
             default:
                 return res.status(500).send('Estado desconocido del usuario.');
         }
@@ -60,3 +68,13 @@ export const logout = async (req, res) => {
         res.status(500).send({ message: 'Error al intentar cerrar la sesion: ' + err.message });
     }
 };
+
+// Endpoint para verificar que el token en una cookie sea valido y guardarlo en el contexto del frontend
+export const verificarToken = async (req, res) => {
+    try{
+        const comprobado = jwt.verify(req.cookies.authToken, process.env.JWT_SECRET);
+        res.status(200).send({token: comprobado});
+    } catch (err) {
+        res.status(400).send({message: 'Token invalido '+ err.message});
+    }
+}

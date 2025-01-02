@@ -3,9 +3,8 @@ import session from 'express-session';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
+import cors from 'cors';
 import { sql, conectarDB } from './config/db.js';
-import autenticacionToken from './middleware/autenticacionToken.js';
-import generarAutToken from './middleware/generarAuthToken.js';
 import dotenv from 'dotenv';
 import createError from 'http-errors';
 dotenv.config();
@@ -31,6 +30,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(path.dirname(''), 'public')));
+app.use(cookieParser());
+app.use(cors({
+    origin: 'http://127.0.0.1:5173',
+    credentials: true
+}));
 
 // Define routes
 app.use('/categorias', categoriasRouter);

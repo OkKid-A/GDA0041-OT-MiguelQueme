@@ -1,4 +1,6 @@
 const Roles = {
-    OPERADOR: 'operador',
-    USUARIO: 'usuario'
+    OPERADOR: 1,
+    USUARIO: 2
 }
+
+export default Roles;

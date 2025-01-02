@@ -4,8 +4,7 @@ import jwt from 'jsonwebtoken';
 const tokenBlacklist = new NodeCache({ stdTTL: 86400, checkperiod: 120 });
 
 const autenticacionToken = (req, res, next) => {
-    const authHeader = req.headers['autorizador'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = req.cookies.authToken; //
 
     if (!token) {
         return res.status(401).json({ message: 'Acceso denegado. Token no encontrado.' });
