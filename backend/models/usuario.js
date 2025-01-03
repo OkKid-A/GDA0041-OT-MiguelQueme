@@ -22,9 +22,9 @@ class Usuario {
             record.apellido,
             record.telefono,
             record.fecha_nacimiento,
-            record.rol,
+            record.id_rol,
             record.id_cliente,
-            record.estado
+            record.id_estado
         );
     }
 

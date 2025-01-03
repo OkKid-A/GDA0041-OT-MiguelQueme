@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth.ts";
-import { CardContent, CardHeader, Theme, Typography } from "@mui/material";
+import { Box, CardContent, Theme, Typography } from "@mui/material";
 import LoginForm from "../../components/Auth/LoginForm.tsx";
 import Card from "@mui/material/Card";
 import { makeStyles } from "@mui/styles";
+import { useLocation } from "react-router-dom";
+import { Alert } from "@mui/material";
 import theme from "../../styles/theme.tsx";
+import ApiError from "../../contexts/types/ApiError.tsx";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   root: {
@@ -44,47 +47,79 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
     color: theme.palette.error.main,
     marginTop: theme.spacing(25),
   },
+  title: {
+    color: theme.palette.text.primary,
+    paddingBottom: "10px",
+    fontWeight: "bold",
+    "& .MuiTypography-root": {
+      textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+    },
+  },
 }));
+
+interface LocationState {
+  error?: string | null;
+}
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const classes = useStyles();
+  const location = useLocation();
+  const locationState = location.state as LocationState;
+  const [error, setError] = useState<string | null>(
+    locationState?.error ?? null,
+  );
+
+  useEffect(() => {
+    if (locationState?.error) {
+      setError(locationState?.error);
+      locationState.error = null; //
+    }
+  }, [location.state]);
+
   const manejarLogin = async (data: {
     correo: string;
     password: string;
   }): Promise<void> => {
-    console.log("login success");
 
     try {
-      console.log("login success");
       await login(data.correo, data.password);
-      console.log("login success");
     } catch (error) {
+      const apiError = error as ApiError;
+      setError(apiError.message);
       console.error(error);
     }
   };
 
   return (
-    <div className={classes.root}>
+    <Box className={classes.root}>
+      {error && (
+        <Box mb={theme.spacing(3)}>
+          <Alert severity="error">{error}</Alert>
+        </Box>
+      )}
       <Typography className={classes.logo} variant="h2" component="h1">
         Mi Tiendita Online
       </Typography>
-      <Card variant="outlined" className={classes.Card}>
-        <CardHeader>
+      <Card
+        variant="outlined"
+        className={classes.Card}
+        style={{ borderRadius: "16px" }}
+      >
+        <CardContent>
           <Typography
             variant="h4"
             component="h1"
             gutterBottom
-            style={{ color: theme.palette.text.primary, paddingBottom: "10px" }}
+            className={classes.title}
           >
             Iniciar Sesión
           </Typography>
-        </CardHeader>
-        <CardContent>
+          <Divider />
           <LoginForm onSubmit={manejarLogin} />
         </CardContent>
       </Card>
-    </div>
+    </Box>
   );
 };
 

@@ -5,7 +5,6 @@ import {
   Variant,
   Palette,
 } from "@react-buddy/ide-toolbox";
-import Button from "@mui/material/Button";
 
 export const PaletteTree = () => (
   <Palette>
@@ -13,13 +12,6 @@ export const PaletteTree = () => (
       <Component name="Loader">
         <Variant>
           <ExampleLoaderComponent />
-        </Variant>
-      </Component>
-    </Category>
-    <Category name="Material">
-      <Component name="Button">
-        <Variant>
-          <Button />
         </Variant>
       </Component>
     </Category>

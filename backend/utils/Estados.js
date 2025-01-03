@@ -1,7 +1,7 @@
 const Estados = {
-    ACTIVO: 'activo',
-    INACTIVO: 'inactivo',
-    PENDIENTE: 'pendiente'
+    ACTIVO: 1,
+    INACTIVO: 2,
+    PENDIENTE: 3
 }
 
 export default Estados;

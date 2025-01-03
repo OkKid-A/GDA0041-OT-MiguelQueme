@@ -5,7 +5,7 @@ import { AuthProvider } from "./contexts/Auth/AuthContext.tsx";
 import { LoginPage } from "./pages/Auth/LoginPage.tsx";
 import { ProtectedRouteGuard } from "./utils/guards/ProtectedRouteGuard.tsx";
 import { NoEncontradoPage } from "./pages/NoEncontradoPage.tsx";
-import { HomeUsuarioPage } from "./pages/HomeUsuarioPage.tsx";
+import { UsuarioHomePage } from "./pages/UsuarioHomePage.tsx";
 
 const App: React.FC = () => {
   return (
@@ -17,7 +17,7 @@ const App: React.FC = () => {
             path="/usuario/home"
             element={
               <ProtectedRouteGuard>
-                <HomeUsuarioPage />
+                <UsuarioHomePage />
               </ProtectedRouteGuard>
             }
           />

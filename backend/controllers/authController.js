@@ -48,7 +48,7 @@ export const login = async (req, res) => {
                 })
                 return res.status(201).send({token: token,message: 'Inicio de sesión exitoso.', rol: usuario.rol});
             default:
-                return res.status(500).send('Estado desconocido del usuario.');
+                return res.status(401).send('Estado desconocido del usuario.');
         }
     } catch (err) {
         res.status(500).send('Error al iniciar sesión: ' + err.message);

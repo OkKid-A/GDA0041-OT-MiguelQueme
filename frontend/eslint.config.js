@@ -40,7 +40,12 @@ export default tseslint.config(
       ],
         ...react.configs.recommended.rules,
         ...react.configs['jsx-runtime'].rules,
-        'prettier/prettier': 'warn'
+        'prettier/prettier': 'warn',
+        "@typescript-eslint/no-misused-promises": [2, {
+            "checksVoidReturn": {
+                "attributes": false
+            }
+        }]
     },
   },
 )

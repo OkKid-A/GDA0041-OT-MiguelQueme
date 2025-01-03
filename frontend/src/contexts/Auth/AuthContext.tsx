@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContextType } from "../types/AuthContextType.ts";
 import api from "../../utils/api.ts";
 import { Roles } from "../types/RolesEnum.ts";
+import ApiError from "../types/ApiError.tsx";
 
 // Creamos el context con un valor indefinido por defecto para su inicialización
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,7 +69,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         console.error("Credenciales invalidas");
       }
     } catch (error) {
-      console.error("Error al iniciar sesión", error);
+      const apiError = error as ApiError;
+      const errorMessage = apiError.message ?? "Error desconocido al iniciar sesión"
+      throw new Error(errorMessage);
     }
   };
 
@@ -79,7 +82,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, role,login, logout }}>
       {children}
     </AuthContext.Provider>
   );
