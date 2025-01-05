@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth.ts";
-import { Box, CardContent, Theme, Typography } from "@mui/material";
-import LoginForm from "../../components/Auth/LoginForm.tsx";
+import {Box, CardContent, Divider, Theme, Typography} from "@mui/material";
+import LoginForm from "../../components/auth/LoginForm.tsx";
 import Card from "@mui/material/Card";
 import { makeStyles } from "@mui/styles";
 import { useLocation } from "react-router-dom";
@@ -71,6 +71,8 @@ export const LoginPage: React.FC = () => {
   );
 
   useEffect(() => {
+    console.log("useatuh here")
+    console.log("Login page state", locationState);
     if (locationState?.error) {
       setError(locationState?.error);
       locationState.error = null; //

@@ -3,7 +3,7 @@ const verificarRol = (...roles) => (req, res, next) => {
     const user = req.user;
 
     // Verificamos que la informacion de usuario este presente y su rol este en la lista
-    if (req.user && roles.includes(req.user.rol.toLowerCase())) {
+    if (req.user && roles.includes(req.user.rol)) {
         return next(); // Seguimos con la ejecucion
     }
 

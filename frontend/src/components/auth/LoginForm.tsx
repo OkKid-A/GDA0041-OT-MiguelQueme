@@ -3,7 +3,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Button from "@mui/material/Button";
-import CustomTextFieldDark from "../Layout/CustomTextFieldDark.tsx";
+import CustomTextFieldDark from "../layout/CustomTextFieldDark.tsx";
 import theme from "../../styles/theme.tsx";
 
 // Declaramos el contenido de la form del login

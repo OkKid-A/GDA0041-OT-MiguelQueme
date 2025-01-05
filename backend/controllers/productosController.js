@@ -12,7 +12,7 @@ export const obtenerProductos = async (req, res) => {
     try {
         const pool = await conectarDB();
         const productos = await Producto.obtenerActivos(pool);
-        res.json(productos);
+        res.status(200).json(productos);
     } catch (e) {
         res.status(404).send('Error al recuperar productos activos: ' + e.message);
     }

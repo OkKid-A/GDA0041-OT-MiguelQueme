@@ -73,7 +73,7 @@ export const logout = async (req, res) => {
 export const verificarToken = async (req, res) => {
     try{
         const comprobado = jwt.verify(req.cookies.authToken, process.env.JWT_SECRET);
-        res.status(200).send({token: comprobado});
+        res.status(200).send({token: req.cookies.authToken, rol: comprobado.rol});
     } catch (err) {
         res.status(400).send({message: 'Token invalido '+ err.message});
     }

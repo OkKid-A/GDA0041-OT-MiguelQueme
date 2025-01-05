@@ -1,12 +1,6 @@
-import { useContext } from "react";
-import { AuthContext } from "../../contexts/Auth/AuthContext.tsx";
-import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material";
+import React, { ReactNode, useContext, useState } from "react";
+import { AuthContext } from "../../contexts/auth/AuthContext.tsx";
+import { CssBaseline } from "@mui/material";
 import { Roles } from "../../contexts/types/RolesEnum.ts";
 import {
   BusinessCenter,
@@ -16,11 +10,9 @@ import {
   Inventory2,
   Restore,
 } from "@mui/icons-material";
-
-interface LayoutProps {
-  renderNavbar: (elements: JSX.Element[]) => JSX.Element[];
-  renderSidebar: (elements: JSX.Element[]) => JSX.Element[];
-}
+import Sidebar from "./Sidebar.tsx";
+import Navbar from "./Navbar.tsx";
+import CartContext from "../../contexts/carrito/CartContext.tsx";
 
 const getRoleSidebarList = (role: Roles | null) => {
   const userItems = [
@@ -79,31 +71,49 @@ const getRoleSidebarList = (role: Roles | null) => {
   }
 };
 
-const getRolesNavbarList = (role: Roles | null) => {
-  const userItems = [
-
-  ]
+interface LayoutProps {
+  children: ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ renderNavbar, renderSidebar }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const authContext = useContext(AuthContext);
+  const cartContext = useContext(CartContext);
+  const [open, setOpen] = useState(false);
+  const showCart = authContext?.role === Roles.USUARIO;
+  const sidebarItems = getRoleSidebarList(authContext!.role);
+  const toggleSidebar = () => {
+    setOpen(!open);
+  };
+
+  const handleLogout = () => {
+    authContext?.logout();
+  };
+
+  const handleCartClick = () => {
+    cartContext?.setOpen(!cartContext?.open);
+  };
 
   if (authContext?.role === null || authContext?.role === undefined) {
     throw new Error("No tienes acceso a este componente");
   }
 
-  const sidebarItems = getRoleSidebarList(authContext.role);
-
   return (
-    <List>
-      {sidebarItems?.map((item) => (
-        <ListItem key={item.key} component="a" href={item.link}>
-          <ListItemButton>
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.label} />
-          </ListItemButton>
-        </ListItem>
-      ))}
-    </List>
+    <div>
+      <CssBaseline />
+      <Navbar
+        toggleSidebar={toggleSidebar}
+        onLogout={handleLogout}
+        onCartClick={showCart ? handleCartClick : handleCartClick}
+        showCart={showCart}
+      />
+      <Sidebar
+        open={open}
+        toggleSidebar={toggleSidebar}
+        sidebarItems={sidebarItems}
+      />
+      {children}
+    </div>
   );
 };
+
+export default Layout;

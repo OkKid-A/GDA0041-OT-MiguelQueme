@@ -8,9 +8,13 @@ const theme = createTheme({
     secondary: {
       main: "#0091AD",
     },
+    info: {
+      main: "#AF9AB2",
+      dark: "#2B2D42",
+    },
     background: {
       default: "#000000",
-      paper: "rgb(0,27,46)",
+      paper: "rgb(0,20,35)",
     },
     text:{
       primary: "#ffffff",
@@ -19,7 +23,8 @@ const theme = createTheme({
     error: {
       main: "#de2828",
     },
-  },
+    divider: "rgba(255,255,255,0.53)",
+},
   spacing: 4,
 });
 

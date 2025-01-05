@@ -6,7 +6,6 @@ import api from "../../utils/api.ts";
 import { Roles } from "../types/RolesEnum.ts";
 import ApiError from "../types/ApiError.tsx";
 
-// Creamos el context con un valor indefinido por defecto para su inicialización
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Proveedor que manejara el estado de autenticacion
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
@@ -15,32 +14,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [token, setToken] = useState<string | null>(null);
   const [role, setRole] = useState<number | null>(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
-  // useEffect se asegura de revisar que el token sea valido cada vez que entramos a una nueva ruta
-  useEffect(() => {
-    // Funcion para revisar si un token sigue siendo valido
-    const revisarAuth = async () => {
-      if (!token) {
-        try {
-          const response = await api.get("/auth");
-          if (response.status === 200) {
-            const data = response.data as AuthTokenType;
-            setToken(data.token);
-            setRole(data.rol);
-          } else {
-            console.error("No se encontro un token");
-            navigate("/login");
-          }
-        } catch (error) {
-          console.error("Error de autenticación ", error);
+  // Funcion para revisar si un token sigue siendo valido
+  const revisarAuth = async () => {
+    if (!token) {
+      try {
+        console.log("actual last token chekec " + token);
+        const response = await api.get("/auth");
+        if (response.status === 200) {
+          console.log(response);
+          const data = response.data as AuthTokenType;
+          setToken(data.token);
+          setRole(data.rol);
+          console.log(data.rol);
+        } else {
+          console.error("No se encontro un token");
           navigate("/login");
         }
+      } catch (error) {
+        console.error("Error de autenticación ", error);
+        navigate("/login");
+      } finally {
+        setLoading(false);
+        setInitialized(true);
+        console.log("Here is the first time that we have the token");
       }
-    };
-    console.log(token);
-    // Para evitar redundancia, solo validamos sino estamos en el login
-    void revisarAuth();
-  }, [navigate]);
+    }
+  };
+  // useEffect se asegura de revisar que el token sea valido cada vez que entramos a una nueva ruta
+  useEffect(() => {
+    if (!initialized) {
+      console.log("is not initialized");
+      void revisarAuth();
+    }
+  }, []);
 
   const login = async (correo: string, password: string) => {
     try {
@@ -54,7 +63,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         console.log(data);
         setToken(data.token); // Guardamos el token
         setRole(data.rol);
-        switch (role) {
+        console.log(role);
+        switch (data.rol) {
           // Redireccionamos segun el rol del usuario
           case Roles.OPERADOR:
             navigate("/operador/home");
@@ -70,7 +80,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       }
     } catch (error) {
       const apiError = error as ApiError;
-      const errorMessage = apiError.message ?? "Error desconocido al iniciar sesión"
+      const errorMessage =
+        apiError.message ?? "Error desconocido al iniciar sesión";
       throw new Error(errorMessage);
     }
   };
@@ -81,8 +92,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     navigate("/login");
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const authContextValue: AuthContextType = {
+    token,
+    role,
+    login,
+    logout,
+    revisarAuth,
+  };
+
   return (
-    <AuthContext.Provider value={{ token, role,login, logout }}>
+    <AuthContext.Provider value={authContextValue}>
       {children}
     </AuthContext.Provider>
   );

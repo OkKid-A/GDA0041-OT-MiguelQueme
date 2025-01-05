@@ -1,15 +1,38 @@
 import { useAuth } from "../../hooks/useAuth.ts";
-import React from "react";
-import { Navigate } from "react-router-dom";
+import React, {ReactNode, useEffect, useState} from "react";
+import { Navigate, useLocation } from "react-router-dom";
 
-export const ProtectedRouteGuard: React.FC<{ children: JSX.Element }> = ({
-  children,
-}) => {
-  const { token } = useAuth();
+export const ProtectedRouteGuard: React.FC<{ children: ReactNode}> = ({
+                                                                           children,
+                                                                         }) => {
+  const { token, revisarAuth } = useAuth();
+  const location = useLocation();
+  const [loading, setLoading] = useState(true);
 
-  if (!token) {
-    return <Navigate to="/login" />;
+
+  useEffect(() => {
+    const attemptAuth = async () => {
+      setLoading(true);
+      try {
+        console.log("Attempt");
+        await revisarAuth();
+      } catch (error) {
+        console.error("Error in auth check on protected route", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+     void attemptAuth();
+  }, [revisarAuth]);
+
+  if(loading){
+    return <div>Loading...</div>
   }
 
-  return children;
+  if (!token) {
+    console.log("should be last token checked" + token);
+    return <Navigate to="/login" state={{ from: location }} />;
+  }
+
+  return <>{children}</>;
 };
