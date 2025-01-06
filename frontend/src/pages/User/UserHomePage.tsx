@@ -1,24 +1,15 @@
-import Layout from "../../components/layout/Layout.tsx";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Product from "../../entities/Product.ts";
-import {
-  Alert,
-  Box,
-  Snackbar,
-  TextField,
-  Theme,
-} from "@mui/material";
+import { Alert, Box, TextField, Theme } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import api from "../../utils/api.ts";
 import ApiError from "../../contexts/types/ApiError.tsx";
 import theme from "../../styles/theme.tsx";
 import ProductList from "../../components/product/ProductList.tsx";
-import CartContext from "../../contexts/carrito/CartContext.tsx";
 import { useCart } from "../../hooks/useCart.ts";
-import CartSidebar from "../../components/product/CartSidebar.tsx";
+import { useLocation } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) => ({
-
   container: {
     padding: theme.spacing(3),
   },
@@ -54,18 +45,30 @@ const useStyles = makeStyles((theme: Theme) => ({
     "& .MuiOutlinedInput-input": {
       color: theme.palette.text.primary,
     },
-  }
+  },
 }));
 
-export const UsuarioHomePage = () => {
+interface LocationState {
+  message?: string;
+}
+
+export const UserHomePage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const classes = useStyles();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const cartContext = useContext(CartContext);
-  const { cart, removeFromCart, updateQuantity, open, setOpen, clearCart } = useCart();
+    useCart();
+  const location = useLocation();
+  const typedLocationState = location.state as LocationState;
+  useEffect(() => {
+    if (typedLocationState?.message) {
+      alert(typedLocationState.message);
+      window.history.replaceState({}, document.title);
+    }
+  }, [typedLocationState?.message]);
 
+  // Obtenemos solo los productos activos de la api
   const fetchProducts = async () => {
     console.log("Fetching products...");
     try {
@@ -109,49 +112,26 @@ export const UsuarioHomePage = () => {
     setSearchQuery(event.target.value);
   };
 
-  const handleToggle = () => {
-    setOpen(!open);
-  };
 
   return (
-    <Layout>
-      <CartSidebar
-        open={open}
-        handleToggle={handleToggle}
-        products={cart}
-        onUpdateQuantity={updateQuantity}
-        onRemoveFromCart={removeFromCart}
-        onClearCart={clearCart}
-      />
-      {cartContext?.addedMessage ? (
-        <Snackbar
-          open={true}
-          autoHideDuration={3000}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        >
-          <Alert severity="success">{cartContext?.addedMessage}</Alert>
-        </Snackbar>
-      ) : (
-        ""
-      )}
+
+    <div className={classes.container}>
       {error && (
-        <Box mb={theme.spacing(3)}>
-          <Alert severity="error">{error}</Alert>
-        </Box>
+          <Box mb={theme.spacing(3)}>
+            <Alert severity="error">{error}</Alert>
+          </Box>
       )}
-      <div className={classes.container}>
-        <div className={classes.textFieldContainer}>
-          <TextField
-            label="Busqueda de Productos"
-            variant="outlined"
-            fullWidth
-            className={classes.textField}
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-        </div>
-        <ProductList products={filteredProducts} />
+      <div className={classes.textFieldContainer}>
+        <TextField
+          label="Busqueda de Productos"
+          variant="outlined"
+          fullWidth
+          className={classes.textField}
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
       </div>
-    </Layout>
+      <ProductList products={filteredProducts} />
+    </div>
   );
 };

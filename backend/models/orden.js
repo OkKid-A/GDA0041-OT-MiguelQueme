@@ -16,8 +16,9 @@ class Orden {
     }
 
     // Funcion para insertarUsuario una orden junto con el json de sus detalles
-    static async insertarOrdenConDetalles(fecha_entrega, pool, json, id_usuario){
+    static async insertarOrdenConDetalles(direccion,fecha_entrega, pool, json, id_usuario){
         await pool.request()
+            .input('direccion_entrega',sql.NVarChar, direccion)
             .input('fecha_entrega', sql.Date, fecha_entrega)
             .input('id_usuario', sql.Int, id_usuario)
             .input('json', sql.NVarChar, json)
@@ -53,6 +54,13 @@ class Orden {
         await pool.request()
             .input('id_orden', sql.Int, id_orden)
             .execute(`desactivarOrden`);
+    }
+
+    static async obetenerOrdenesDeUsuario(pool, id_usuario){
+        console.log(id_usuario)
+        return await pool.request()
+            .input('id_usuario', sql.Int, id_usuario)
+        .execute(`obtenerOrdenesPorUsuario`);
     }
 }
 

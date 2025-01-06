@@ -1,16 +1,20 @@
 import React from "react";
 import "./App.css";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { AuthProvider} from "./contexts/auth/AuthContext.tsx";
+import { AuthProvider } from "./contexts/auth/AuthContext.tsx";
 import { LoginPage } from "./pages/Auth/LoginPage.tsx";
 import { ProtectedRouteGuard } from "./utils/guards/ProtectedRouteGuard.tsx";
 import { NoEncontradoPage } from "./pages/NoEncontradoPage.tsx";
-import { UsuarioHomePage } from "./pages/Usuario/UsuarioHomePage.tsx";
-import {CartPage} from "./pages/Usuario/CartPage.tsx";
-import {CartProvider} from "./contexts/carrito/CartContext.tsx";
+import { UserHomePage } from "./pages/User/UserHomePage.tsx";
+import { CartProvider } from "./contexts/carrito/CartContext.tsx";
+import { HistoryPage } from "./pages/User/HistoryPage.tsx";
+import { VerifyRoleGuard } from "./utils/guards/VerifyRoleGuard.tsx";
+import { Roles } from "./contexts/types/RolesEnum.ts";
+import UserLayout from "./components/layout/UserLayout.tsx";
+import OperatorHomePage from "./pages/Operator/OperatorHomePage.tsx";
+import Layout from "./components/layout/Layout.tsx";
 
 const App: React.FC = () => {
-
   return (
     <Router>
       <AuthProvider>
@@ -20,12 +24,30 @@ const App: React.FC = () => {
             path="/usuario/*"
             element={
               <ProtectedRouteGuard>
+                <VerifyRoleGuard authRole={Roles.USUARIO}>
                   <CartProvider>
-                  <Routes>
-                      <Route path="home" element={<UsuarioHomePage/>}/>
-                      <Route path="carrito" element={<CartPage />}/>
-                  </Routes>
+                    <UserLayout>
+                      <Routes>
+                        <Route path="home" element={<UserHomePage />} />
+                        <Route path="historial" element={<HistoryPage />} />
+                      </Routes>
+                    </UserLayout>
                   </CartProvider>
+                </VerifyRoleGuard>
+              </ProtectedRouteGuard>
+            }
+          />
+          <Route
+            path="/operador/*"
+            element={
+              <ProtectedRouteGuard>
+                <VerifyRoleGuard authRole={Roles.OPERADOR}>
+                  <Layout>
+                    <Routes>
+                      <Route path="home" element={<OperatorHomePage />} />
+                    </Routes>
+                  </Layout>
+                </VerifyRoleGuard>
               </ProtectedRouteGuard>
             }
           />
@@ -35,6 +57,5 @@ const App: React.FC = () => {
     </Router>
   );
 };
-
 
 export default App;

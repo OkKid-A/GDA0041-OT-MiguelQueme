@@ -1,14 +1,13 @@
 import { useAuth } from "../../hooks/useAuth.ts";
-import React, {ReactNode, useEffect, useState} from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
-export const ProtectedRouteGuard: React.FC<{ children: ReactNode}> = ({
-                                                                           children,
-                                                                         }) => {
+export const ProtectedRouteGuard: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const { token, revisarAuth } = useAuth();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     const attemptAuth = async () => {
@@ -22,11 +21,11 @@ export const ProtectedRouteGuard: React.FC<{ children: ReactNode}> = ({
         setLoading(false);
       }
     };
-     void attemptAuth();
+    void attemptAuth();
   }, [revisarAuth]);
 
-  if(loading){
-    return <div>Loading...</div>
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   if (!token) {

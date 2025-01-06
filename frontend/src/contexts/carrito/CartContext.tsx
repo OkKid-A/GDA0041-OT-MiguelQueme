@@ -72,7 +72,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     addedMessage,
     open,
     setOpen,
-    clearCart
+    clearCart,
   };
 
   return (

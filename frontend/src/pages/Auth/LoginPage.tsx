@@ -71,8 +71,6 @@ export const LoginPage: React.FC = () => {
   );
 
   useEffect(() => {
-    console.log("useatuh here")
-    console.log("Login page state", locationState);
     if (locationState?.error) {
       setError(locationState?.error);
       locationState.error = null; //

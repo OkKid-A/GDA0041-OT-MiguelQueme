@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
   Box,
   Divider,
@@ -13,6 +13,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import CartList from "./CartList.tsx";
 import Button from "@mui/material/Button";
 import Product from "../../entities/Product.ts";
+import ConfirmOrderModal from "../order/ConfirmOrderModal.tsx";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   sidebarDrawer: {
@@ -51,7 +52,7 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
 
 interface CartDrawerProps {
   open: boolean;
-  handleToggle: () => void;
+  handleToggle: (resultado: string | null) => void;
   products: { product: Product; quantity: number }[];
   onRemoveFromCart: (product: Product) => void;
   onUpdateQuantity: (product: Product, quantity: number) => void;
@@ -67,6 +68,19 @@ const CartSidebar: React.FC<CartDrawerProps> = ({
   onClearCart,
 }) => {
   const classes = useStyles();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [total, setTotal] = useState(0)
+
+  const handleOpen = () => setModalOpen(true);
+  const handleClose = () => setModalOpen(false);
+
+  useEffect(() => {
+    const calculateTotal = () => {
+      const newTotal = products.reduce((acc, item) => acc + (item.product.precio * item.quantity), 0)
+      setTotal(newTotal);
+    };
+    calculateTotal();
+  }, [products]);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -74,13 +88,13 @@ const CartSidebar: React.FC<CartDrawerProps> = ({
         variant="temporary"
         anchor="right"
         open={open}
-        onClose={handleToggle}
+        onClose={() => handleToggle(null)}
         className={classes.sidebarDrawer}
       >
         <div className={classes.drawerHeader}>
           <IconButton
             sx={{ color: theme.palette.text.primary }}
-            onClick={() => handleToggle()}
+            onClick={() => handleToggle(null)}
           >
             <ChevronLeftIcon />
           </IconButton>
@@ -96,7 +110,13 @@ const CartSidebar: React.FC<CartDrawerProps> = ({
             onUpdateQuantity={onUpdateQuantity}
           />
         </Box>
+        <Box className={classes.cartTotal}>
+          <Typography variant={"h6"}  >
+            Total: Q {total.toFixed(2)}
+          </Typography>
+        </Box>
         <Box className={classes.cartActionsContainer}>
+
           <Button
             variant="contained"
             color="primary"
@@ -106,10 +126,12 @@ const CartSidebar: React.FC<CartDrawerProps> = ({
                 color: theme.palette.text.primary,
               },
             }}
+            onClick={handleOpen}
           >
             Confirmar Compra
           </Button>
           <Button onClick={onClearCart}>Borrar Carrito</Button>
+          <ConfirmOrderModal open={modalOpen} handleClose={handleClose} handleToggle={handleToggle}/>
         </Box>
       </Drawer>
     </Box>

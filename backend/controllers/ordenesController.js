@@ -19,7 +19,7 @@ export const obtenerOrdenes = async (req, res) => {
 
 export const insertarOrdenConDetalle = async (req, res) => {
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
-    const { fecha_entrega, json } = req.body;
+    const { direccion,fecha_entrega, json } = req.body;
 
     if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
@@ -28,7 +28,7 @@ export const insertarOrdenConDetalle = async (req, res) => {
     try {
         const jsonString = JSON.stringify(json);
         const pool = await conectarDB();
-        await Orden.insertarOrdenConDetalles(fecha_entrega, pool, jsonString, id_usuario);
+        await Orden.insertarOrdenConDetalles(direccion,fecha_entrega, pool, jsonString, id_usuario);
         res.status(200).send('Orden ingresada con éxito.');
     } catch (err) {
         res.status(500).send('Error al ingresar la orden: ' + err.message);
@@ -106,3 +106,22 @@ export const desactivarOrden = async (req, res) => {
         res.status(500).send('Error al desactivar la orden: ' + err.message);
     }
 };
+
+export const obtenerOrdenesCliente = async (req, res) => {
+    const id_usuario = req.user.id_usuario;
+    if (!id_usuario) {
+        return res.status(401).send('No autorizado: No has iniciado sesion.');
+    }
+
+    try {
+        console.log(id_usuario)
+        const pool = await conectarDB();
+        const resultado = await Orden.obetenerOrdenesDeUsuario(pool,id_usuario);
+        if (resultado.recordset.length === 0) {
+            return res.status(404).json('El usuario no existe.');
+        }
+        return res.status(200).send(resultado.recordset);
+    } catch (err) {
+        return res.status(401).send('Error al recuperar las ordenes: del usuario ' + err.message);
+    }
+}
