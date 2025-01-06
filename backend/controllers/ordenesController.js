@@ -37,11 +37,15 @@ export const insertarOrdenConDetalle = async (req, res) => {
 
 export const actualizarOrden = async (req, res) => {
     const id_usuario = req.user.id_usuario;
-    const { id_orden } = req.params.id;
+    const id_orden = req.params.id;
     const { nombre, apellido, direccion, telefono, correo, fecha_entrega, total_orden, id_estado } = req.body;
 
     if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
+    }
+
+    if (!id_orden) {
+        return res.status(404).send('No se encontro un id_orden' + req.params.id)
     }
 
     const orden = new Orden(

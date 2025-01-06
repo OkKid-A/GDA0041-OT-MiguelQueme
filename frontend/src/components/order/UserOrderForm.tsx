@@ -42,11 +42,14 @@ const userOrderSchema = yup.object().shape({
 });
 
 interface UserOrderFormProps {
-    onSubmit: (data: userOrderFormInput) => void;
-    handleCancelar: () => void;
+  onSubmit: (data: userOrderFormInput) => void;
+  handleCancelar: () => void;
 }
 
-const UserOrderForm: React.FC<UserOrderFormProps> = ({ onSubmit, handleCancelar }) => {
+const UserOrderForm: React.FC<UserOrderFormProps> = ({
+  onSubmit,
+  handleCancelar,
+}) => {
   const {
     register,
     handleSubmit,

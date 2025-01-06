@@ -14,14 +14,14 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
   textField: {
     "& .MuiOutlinedInput-root": {
       "&:hover": {
-        color: "#ffffff",
+        borderColor: theme.palette.primary.main,
       },
       backgroundColor: "#000000",
       "&.Mui-focused": {
         backgroundColor: "#000000",
       },
       "&:hover .MuiOutlinedInput-notchedOutline": {
-        borderColor: "rgba(255,255,255,0.64)",
+        borderColor: theme.palette.primary.main,
       },
     },
     "& .MuiInputLabel-root": {

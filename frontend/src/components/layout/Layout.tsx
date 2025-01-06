@@ -1,7 +1,7 @@
 import React, { ReactNode, useContext, useState } from "react";
 import { AuthContext } from "../../contexts/auth/AuthContext.tsx";
 import { CssBaseline } from "@mui/material";
-import { Roles } from "../../contexts/types/RolesEnum.ts";
+import { Roles } from "../../entities/RolesEnum.ts";
 import {
   BusinessCenter,
   Category,

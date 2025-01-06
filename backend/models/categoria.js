@@ -40,7 +40,6 @@ class Categoria {
         await pool.request()
             .input('id_categoria', sql.Int, this.id_categoria)
             .input('nombre', sql.NVarChar, this.nombre)
-            .input('fecha_creacion', sql.Date, this.fecha_creacion)
             .input('id_estado', sql.Int, this.id_estado)
             .execute(`actualizarCategoriaProducto`);
 

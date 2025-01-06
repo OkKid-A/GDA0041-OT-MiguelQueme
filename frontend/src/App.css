@@ -4,12 +4,13 @@ html, body {
   padding: 0;
   height: 100%;
   width: 100%;
+  background: #2f2a2a;
 }
 
 #root {
   height: 100%;
   width: 100%;
-  background: #000;
+  background: #2f2a2a;
 }
 
 * {

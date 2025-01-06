@@ -66,7 +66,7 @@ export const insertarCategoriaProducto = async (req, res) => {
         const pool = await conectarDB();
         const categoria = new Categoria(null, nombre, id_estado, null);
         const id_categoria = await categoria.insertarCategoria(pool, userId);
-        res.status(201).json({ id_categoria, message: 'Categoría de producto creada exitosamente' });
+        res.status(200).json({ id_categoria, message: 'Categoría de producto creada exitosamente' });
     } catch (err) {
         res.status(500).json({ message: 'Error al crear la categoría de producto', error: err.message });
     }
@@ -75,7 +75,7 @@ export const insertarCategoriaProducto = async (req, res) => {
 // Endpoint para actualizarUsuario una categoria
 export const editarCategoria = async (req, res) => {
     const id_categoria = req.params.id;
-    const { nombre, id_estado, fecha_creacion } = req.body;
+    const { nombre, id_estado } = req.body;
     const userId = req.user.id_usuario;
 
     if (!userId) {
@@ -84,9 +84,9 @@ export const editarCategoria = async (req, res) => {
 
     try {
         const pool = await conectarDB();
-        const categoria = new Categoria(id_categoria, nombre, id_estado, fecha_creacion);
+        const categoria = new Categoria(id_categoria, nombre, id_estado, null);
         await categoria.actualizarCategoria(pool);
-        res.status(201).json('Categoría de producto editada exitosamente');
+        res.status(200).json('Categoría de producto editada exitosamente');
     } catch (err) {
         res.status(500).json({ message: 'Error al editar la categoría de producto', error: err.message });
     }
@@ -104,7 +104,7 @@ export const desactivarCategoria = async (req, res) => {
     try {
         const pool = await conectarDB();
         await Categoria.desactivarCategoria(pool, id_categoria);
-        res.status(201).send('Categoria desactivada con exito.');
+        res.status(200).send('Categoria desactivada con exito.');
     } catch (err) {
         res.status(500).send('Error al intentar desactivar la categoria: ' + err.message);
     }

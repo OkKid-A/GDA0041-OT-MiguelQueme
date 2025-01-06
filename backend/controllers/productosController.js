@@ -1,5 +1,7 @@
 import { conectarDB } from '../config/db.js';
 import Producto from '../models/producto.js';
+import multer from "multer";
+import path from "path";
 
 // Obtiene los datos de cada producto activo
 export const obtenerProductos = async (req, res) => {
@@ -15,6 +17,23 @@ export const obtenerProductos = async (req, res) => {
         res.status(200).json(productos);
     } catch (e) {
         res.status(404).send('Error al recuperar productos activos: ' + e.message);
+    }
+}
+
+// Obtiene todos los productos sin condiciones
+export const obtenerTodosProductos = async (req, res) => {
+    const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
+
+    if (!id_usuario) {
+        return res.status(401).send('No autorizado: No has iniciado sesion.');
+    }
+
+    try {
+        const pool = await conectarDB();
+        const productos = await Producto.obtenerTodos(pool);
+        res.status(200).json(productos);
+    } catch (e) {
+        res.status(404).send('Error al recuperar productos: ' + e.message);
     }
 }
 
@@ -38,38 +57,65 @@ export const obtenerProductoPorId = async (req, res) => {
 
 // Inserta un nuevo producto
 export const insertarProducto = async (req, res) => {
-    const { nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado } = req.body;
+    const { nombre, marca, codigo, stock, precio, id_categoria, id_estado } = req.body;
     const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
 
     if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
+    }
+    let foto;
+    if (req.file){
+        foto = `http://localhost:3000/productos/storage/${req.file.filename}`;
+    } else {
+        foto = null;
     }
 
     try {
         const pool = await conectarDB();
         const producto = new Producto(null, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado);
         const id_producto = await producto.insertarProducto(pool, id_usuario);
-        res.status(201).send({ id_producto, message: 'Producto creado exitosamente' });
+        res.status(200).send({ id_producto, message: 'Producto creado exitosamente' });
     } catch (err) {
         res.status(500).send('Error al insertar el producto: ' + err.message);
     }
 }
 
+// Constante para especificar donde se guardaran las imagenes
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, `storage/`);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + "_" + Math.round(Math.random() * 1E9)
+        cb(null, uniqueSuffix+path.extname(file.originalname));
+    }
+})
+const upload = multer({ storage: storage })
+export const uploadImage = upload.single('foto');
+
 // Actualiza un producto, podemos cambiar uno, varios o todos los campos
 export const editarProducto = async (req, res) => {
-    const id_producto = req.params.id;
-    const { nombre, marca, codigo, stock, precio, fecha_creacion, foto, id_categoria, id_estado } = req.body;
     const id_usuario = req.user.id_usuario;
 
     if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
     }
 
+    const id_producto = req.params.id;
+    const { nombre, marca, codigo, stock, precio, id_categoria, id_estado } = req.body;
+    let foto;
+    if (req.file){
+        foto = `http://localhost:3000/productos/storage/${req.file.filename}`;
+    } else {
+        foto = null;
+    }
+    console.log(foto);
+
     try {
         const pool = await conectarDB();
-        const producto = new Producto(id_producto, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado, fecha_creacion);
+        const producto = new Producto(id_producto, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado, null);
         await producto.actualizarProducto(pool);
-        res.status(201).send('Producto actualizado con exito.');
+        res.status(200).send('Producto actualizado con exito.');
     } catch (err) {
         res.status(500).send('Error al intentar actualizar el producto: ' + err.message);
     }
@@ -87,7 +133,7 @@ export const desactivarProducto = async (req, res) => {
     try {
         const pool = await conectarDB();
         await Producto.desactivar(pool, id_producto);
-        res.status(201).send('Producto desactivado con exito.');
+        res.status(200).send('Producto desactivado con exito.');
     } catch (err) {
         res.status(500).send('Error al intentar desactivar el producto: ' + err.message);
     }

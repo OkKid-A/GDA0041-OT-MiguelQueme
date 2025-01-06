@@ -15,6 +15,11 @@ class Producto {
         this.fecha_creacion = fecha_creacion;
     }
 
+    static async obtenerTodos(pool) {
+        const resultado = await pool.request().query('SELECT * FROM seleccionarTodosProductos');
+        return resultado.recordset;
+    }
+
     static async obtenerActivos(pool) {
         const resultado = await pool.request().query('SELECT * FROM productosActivos');
         return resultado.recordset;
@@ -51,7 +56,6 @@ class Producto {
             .input('codigo', sql.NVarChar, this.codigo)
             .input('stock', sql.Int, this.stock)
             .input('precio', sql.Float, this.precio)
-            .input('fecha_creacion', sql.Date, this.fecha_creacion)
             .input('foto', sql.NVarChar, this.foto)
             .input('id_categoria', sql.Int, this.id_categoria)
             .input('id_estado', sql.Int, this.id_estado)
@@ -63,6 +67,8 @@ class Producto {
             .input('id_producto', sql.Int, id_producto)
             .execute(`desactivarProducto`);
     }
+
+    static async
 }
 
 export default Producto;

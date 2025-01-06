@@ -8,7 +8,7 @@ const verificarRol = (...roles) => (req, res, next) => {
     }
 
     // Si no hay usuario o su rol no esta en la lista, enviamos solo un mensaje de error
-    return res.status(403).json({ message: 'Acceso denegado, solo se permiten operadores.' });
+    return res.status(403).json({ message: 'Acceso denegado por tu rol.'});
 }
 
 export default verificarRol;

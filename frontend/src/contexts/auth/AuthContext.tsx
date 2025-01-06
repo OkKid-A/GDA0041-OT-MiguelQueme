@@ -3,7 +3,7 @@ import { AuthTokenType } from "../types/AuthTokenType.ts";
 import { useNavigate } from "react-router-dom";
 import { AuthContextType } from "../types/AuthContextType.ts";
 import api from "../../utils/api.ts";
-import { Roles } from "../types/RolesEnum.ts";
+import { Roles } from "../../entities/RolesEnum.ts";
 import ApiError from "../types/ApiError.tsx";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

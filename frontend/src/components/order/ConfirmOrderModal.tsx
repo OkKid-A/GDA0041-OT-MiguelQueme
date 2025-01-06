@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Fade,
-  Modal,
-  Theme,
-  Typography,
-} from "@mui/material";
+import { Box, Fade, Modal, Theme, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import theme from "../../styles/theme.tsx";
 import UserOrderForm from "./UserOrderForm.tsx";
@@ -39,7 +33,7 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
 const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
   open,
   handleClose,
-    handleToggle,
+  handleToggle,
 }) => {
   const { cart, clearCart } = useCart();
   const classes = useStyles();
@@ -86,44 +80,43 @@ const ConfirmOrderModal: React.FC<ConfirmOrderModalProps> = ({
   };
 
   return (
-      <Box>
-        <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="transition-modal-title"
-            aria-describedby="transition-modal-description"
-            className={classes.modal}
-        >
-          <Fade in={open}>
-            <Box className={classes.modalContent}>
-              <Typography
-                  variant="h6"
-                  component="h2"
-                  sx={{ justifySelf: "center" }}
-              >
-                Confirmar Compra
-              </Typography>
-              <Typography sx={{ mt: 2, justifySelf: "center" }}>
-                Ingresa tu direccion
-              </Typography>
-              <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    gap: theme.spacing(1),
-                    marginTop: theme.spacing(2),
-                  }}
-              >
-                <UserOrderForm
-                    handleCancelar={handleClose}
-                    onSubmit={handleSubmit}
-                />
-              </Box>
+    <Box>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        className={classes.modal}
+      >
+        <Fade in={open}>
+          <Box className={classes.modalContent}>
+            <Typography
+              variant="h6"
+              component="h2"
+              sx={{ justifySelf: "center" }}
+            >
+              Confirmar Compra
+            </Typography>
+            <Typography sx={{ mt: 2, justifySelf: "center" }}>
+              Ingresa tu direccion
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: theme.spacing(1),
+                marginTop: theme.spacing(2),
+              }}
+            >
+              <UserOrderForm
+                handleCancelar={handleClose}
+                onSubmit={handleSubmit}
+              />
             </Box>
-          </Fade>
-        </Modal>
-      </Box>
-
+          </Box>
+        </Fade>
+      </Modal>
+    </Box>
   );
 };
 

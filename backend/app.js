@@ -16,6 +16,10 @@ import authRouter from './routes/authRouter.js';
 import usuariosRouter from './routes/usuariosRouter.js';
 import clientesRouter from './routes/clientesRouter.js';
 import ordenesRouter from './routes/ordenesRouter.js';
+import autenticacionToken from "./middleware/autenticacionToken.js";
+import verificarRol from "./middleware/verificarRol.js";
+import Roles from "./utils/Roles.js";
+import router from "./routes/productosRouter.js";
 
 const app = express();
 
@@ -44,6 +48,7 @@ app.use('/auth', authRouter);
 app.use('/usuarios', usuariosRouter);
 app.use('/clientes', clientesRouter);
 app.use('/ordenes', ordenesRouter);
+
 
 // Handle sessions
 app.use(session({

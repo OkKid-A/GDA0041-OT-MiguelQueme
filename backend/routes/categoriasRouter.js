@@ -14,7 +14,7 @@ import Roles from "../utils/Roles.js"
 const router = express.Router();
 
 router.get('/', autenticacionToken, verificarRol(Roles.OPERADOR),obtenerCategorias);
-router.get('/activas', autenticacionToken, verificarRol(Roles.USUARIO),obtenerCategoriasActivas);
+router.get('/activas', autenticacionToken, verificarRol(Roles.USUARIO, Roles.OPERADOR),obtenerCategoriasActivas);
 router.get('/:id', autenticacionToken, verificarRol(Roles.OPERADOR),obtenerCategoriaPorId);
 router.post('/', autenticacionToken, verificarRol(Roles.OPERADOR), insertarCategoriaProducto);
 router.put('/:id', autenticacionToken, verificarRol(Roles.OPERADOR),editarCategoria);
