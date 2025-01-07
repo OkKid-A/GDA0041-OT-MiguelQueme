@@ -3,4 +3,5 @@ export enum StatusEnum {
     INACTIVE = 2,
     PENDING = 3,
     REJECTED = 4,
+    CANCELED = 5,
 }

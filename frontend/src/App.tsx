@@ -2,20 +2,21 @@ import React from "react";
 import "./App.css";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { AuthProvider } from "./contexts/auth/AuthContext.tsx";
-import { LoginPage } from "./pages/Auth/LoginPage.tsx";
+import { LoginPage } from "./pages/auth/LoginPage.tsx";
 import { ProtectedRouteGuard } from "./utils/guards/ProtectedRouteGuard.tsx";
 import { NoEncontradoPage } from "./pages/NoEncontradoPage.tsx";
-import { UserHomePage } from "./pages/User/UserHomePage.tsx";
+import { UserHomePage } from "./pages/user/UserHomePage.tsx";
 import { CartProvider } from "./contexts/carrito/CartContext.tsx";
-import { HistoryPage } from "./pages/User/HistoryPage.tsx";
+import { HistoryPage } from "./pages/user/HistoryPage.tsx";
 import { VerifyRoleGuard } from "./utils/guards/VerifyRoleGuard.tsx";
 import { Roles } from "./entities/RolesEnum.ts";
 import UserLayout from "./components/layout/UserLayout.tsx";
-import OperatorHomePage from "./pages/Operator/OperatorHomePage.tsx";
+import OperatorHomePage from "./pages/operator/OperatorHomePage.tsx";
 import Layout from "./components/layout/Layout.tsx";
-import ProductsCRUDPage from "./pages/Operator/ProductsCRUDPage.tsx";
-import CategoriesCRUDPage from "./pages/Operator/CategoriesCRUDPage.tsx";
-import UserCRUDPage from "./pages/Operator/UserCRUDPage.tsx";
+import ProductsCRUDPage from "./pages/operator/ProductsCRUDPage.tsx";
+import CategoriesCRUDPage from "./pages/operator/CategoriesCRUDPage.tsx";
+import UserCRUDPage from "./pages/operator/UserCRUDPage.tsx";
+import ClientCRUDPage from "./pages/operator/ClientCRUDPage.tsx";
 
 const App: React.FC = () => {
   return (
@@ -51,6 +52,7 @@ const App: React.FC = () => {
                       <Route path="productos" element={<ProductsCRUDPage />} />
                       <Route path="categorias" element={< CategoriesCRUDPage />} />
                       <Route path="usuarios" element={< UserCRUDPage />} />
+                      <Route path="clientes" element={<ClientCRUDPage/>} />
                     </Routes>
                   </Layout>
                 </VerifyRoleGuard>

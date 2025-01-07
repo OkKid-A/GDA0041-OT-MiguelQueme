@@ -90,7 +90,7 @@ interface ProductSubmitOrEditFormProps {
   product: ProductExpanded | null;
 }
 
-const ProductSubmitOrEditForm: React.FC<ProductSubmitOrEditFormProps> = ({
+const ProductSubmitForm: React.FC<ProductSubmitOrEditFormProps> = ({
   onSubmit,
   handleCancel: handleCancel,
   product,
@@ -268,4 +268,4 @@ const ProductSubmitOrEditForm: React.FC<ProductSubmitOrEditFormProps> = ({
   );
 };
 
-export default ProductSubmitOrEditForm;
+export default ProductSubmitForm;

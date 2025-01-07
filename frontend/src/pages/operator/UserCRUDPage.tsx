@@ -83,10 +83,10 @@ const UserCRUDPage: React.FC = () => {
           variant="h3"
           sx={{ color: theme.palette.text.primary }}
         >
-          Categorias
+          Usuarios
         </Typography>
         <Button variant="contained" onClick={handleOpen}>
-          <Add /> Añadir Categoria
+          <Add /> Añadir usuario
         </Button>
       </Box>
       <UserCRUDTable users={users} onUpdate={fetchUsers}/>

@@ -14,13 +14,18 @@ import {
 import { makeStyles } from "@mui/styles";
 import { Order } from "../../entities/Order.ts";
 import { StatusEnum } from "../../entities/StatusEnum.ts";
-import { CheckBox, Info, RemoveCircle } from "@mui/icons-material";
+import {
+  CancelOutlined,
+  CheckBox,
+  Info,
+  RemoveCircle,
+} from "@mui/icons-material";
 import theme from "../../styles/theme.tsx";
 import OrderHistoryModal from "./OrderHistoryModal.tsx";
 import Button from "@mui/material/Button";
 import api from "../../utils/api.ts";
 import ApiError from "../../contexts/types/ApiError.tsx";
-import {formatDate} from "../../utils/formatDate.ts";
+import { formatDate } from "../../utils/formatDate.ts";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   tableContainer: {
@@ -29,7 +34,7 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
   },
   tableHeader: {
     color: theme.palette.text.secondary,
-flexGrow: 2,
+    flexGrow: 2,
   },
 }));
 
@@ -37,12 +42,14 @@ interface OrderHistoryTableProps {
   orders: Order[];
   isOperator: boolean; // Para no crear componentes innecesarios reutilizaremos esta tabla para el operador
   onOrdersUpdate: () => void;
+  onCancel: ((id: number) => void) | null;
 }
 
 const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
   orders,
   isOperator,
   onOrdersUpdate,
+    onCancel
 }) => {
   const classes = useStyles();
   const [message, setMessage] = useState<string | null>(null);
@@ -96,7 +103,9 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
           onOrdersUpdate();
           setMessage("Se ha rechazado la orden con éxito");
         } else {
-          setError("Error al intentar rechazar la orden: "+ response.statusText);
+          setError(
+            "Error al intentar rechazar la orden: " + response.statusText,
+          );
         }
       } catch (error) {
         const apiError = error as ApiError;
@@ -104,6 +113,7 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
       }
     }
   };
+
 
   const traducirEstado = (id_estado: StatusEnum) => {
     switch (id_estado) {
@@ -152,7 +162,9 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
       <Table>
         <TableHead sx={{ backgroundColor: theme.palette.primary.main }}>
           <TableRow>
-            <TableCell sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}>
+            <TableCell
+              sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+            >
               ID
             </TableCell>
             <TableCell
@@ -226,6 +238,12 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
               >
                 Rechazar
               </TableCell>
+            )}
+            {!isOperator && (
+              <TableCell
+                sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+                align="center"
+              ></TableCell>
             )}
           </TableRow>
         </TableHead>
@@ -308,6 +326,24 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
                   </Button>
                 </TableCell>
               )}
+              {!isOperator && (
+                <TableCell align="center">
+                  <Button
+                    variant="outlined"
+                    disabled={order.id_estado !== StatusEnum.PENDING}
+                    sx={{
+                      color: theme.palette.primary.light,
+                      "&.Mui-disabled": {
+                        color: theme.palette.info.dark,
+                      },
+                    }}
+                    onClick={onCancel ? () => onCancel(order.id_orden) : () => handleOpen(order)}
+                  >
+                    <CancelOutlined/>Cancelar
+                  </Button>
+                </TableCell>
+              )}
+
             </TableRow>
           ))}
         </TableBody>

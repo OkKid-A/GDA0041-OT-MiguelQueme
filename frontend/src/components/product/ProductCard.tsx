@@ -21,6 +21,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   cardImage: {
     height: 200,
+    display: "flex",
+    width: "auto",
   },
   cardContent: {
     paddingBottom: "0 !important",

@@ -9,6 +9,7 @@ import theme from "../../styles/theme.tsx";
 import { Add } from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import ProductModal from "../../components/product/ProductModal.tsx";
+import useActionsPage from "../../hooks/useActionsPage.ts";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   container: {
@@ -26,22 +27,16 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
 const ProductsCRUDPage: React.FC = () => {
   const classes = useStyles();
   const [products, setProducts] = useState<ProductExpanded[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [openModal, setOpenModal] = useState(false);
-
-  const handleOnClose = () => {
-    setError(null);
-    setMessage(null);
-  };
-
-  const handleClose = () => {
-    setOpenModal(false);
-  };
-
-  const handleOpen = () => {
-    setOpenModal(true);
-  }
+  const {
+    error,
+    setError,
+    message,
+    setMessage,
+    handleOpen,
+    openModal,
+    handleOnClose,
+    handleClose,
+  } = useActionsPage();
 
   const handleResult = (message: string) => {
     void fetchProducts();

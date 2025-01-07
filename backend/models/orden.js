@@ -57,10 +57,15 @@ class Orden {
     }
 
     static async obetenerOrdenesDeUsuario(pool, id_usuario){
-        console.log(id_usuario)
         return await pool.request()
             .input('id_usuario', sql.Int, id_usuario)
         .execute(`obtenerOrdenesPorUsuario`);
+    }
+
+    static async cancelarOrden(pool, id_orden){
+        await pool.request()
+            .input('id_orden', id_orden)
+            .execute(`cancelarOrden`);
     }
 }
 

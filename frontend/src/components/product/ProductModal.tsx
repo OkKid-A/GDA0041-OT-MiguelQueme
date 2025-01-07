@@ -1,7 +1,7 @@
 import ProductExpanded from "../../entities/ProductExpanded.ts";
-import ProductSubmitOrEditForm, {
+import ProductSubmitForm, {
   ProductSubmitOrEditFormInput,
-} from "./ProductSubmitOrEditForm.tsx";
+} from "./ProductSubmitForm.tsx";
 import ApiError from "../../contexts/types/ApiError.tsx";
 import React from "react";
 import apiFiles from "../../utils/apiFiles.ts";
@@ -62,10 +62,10 @@ const ProductModal: React.FC<ProductModalProps> = ({
       handleClose={handleClose}
       title={product ? "Editar producto" : "Añadir producto"}>
 
-            <ProductSubmitOrEditForm
+            <ProductSubmitForm
               onSubmit={handleSubmit}
               product={product}
-              handleCancelar={handleClose}
+              handleCancel={handleClose}
             />
 
 </DynamicModal>

@@ -107,13 +107,10 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
     return d.toLocaleDateString("es-MX");
   };
 
-  const traducirEstado = (id_estado: number, fecha_entrega: Date) => {
+  const traducirEstado = (id_estado: number,) => {
     switch (id_estado) {
       case 1:
-        if (fecha_entrega > new Date()) {
           return "Entregada";
-        }
-        return "Confirmada";
       case 2:
         return "Pendiente";
       default:
@@ -155,7 +152,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
               <Typography>Total: Q{order.total_orden.toFixed(2)}</Typography>
               <Typography>
                 Estado:{" "}
-                {traducirEstado(order.id_estado, new Date(order.fecha_entrega))}
+                {traducirEstado(order.id_estado)}
               </Typography>
               <Typography>Numero de Productos: {order.cantidad}</Typography>
               <Divider

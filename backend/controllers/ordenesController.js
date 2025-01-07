@@ -94,6 +94,25 @@ export const obtenerOrdenPorID = async (req, res) => {
     }
 };
 
+// Endpoint para que el usuario cancele una orden antes de que sea entregada
+export const cancelarOrden = async (req, res) => {
+    const id_orden = req.params.id;
+    const id_usuario = req.user.id_usuario;
+
+    if (!id_usuario) {
+        return res.status(401).send('No autorizado: No has iniciado sesion.');
+    }
+
+    try {
+        const pool = await conectarDB();
+        await Orden.cancelarOrden(pool, id_orden);
+        res.status(200).send('Se ha cancelado la orden con éxito.');
+    } catch (err) {
+        res.status(500).send('Error al cancelar la orden: ' + err.message);
+    }
+};
+
+// Endpoint para que el operador desactive la orden
 export const desactivarOrden = async (req, res) => {
     const id_orden = req.params.id;
     const id_usuario = req.user.id_usuario;
@@ -128,4 +147,4 @@ export const obtenerOrdenesCliente = async (req, res) => {
     } catch (err) {
         return res.status(401).send('Error al recuperar las ordenes: del usuario ' + err.message);
     }
-}
+};

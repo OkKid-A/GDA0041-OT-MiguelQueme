@@ -36,7 +36,7 @@ export const obtenerClientePorID = async (req, res) => {
 }
 
 export const crearCliente = async (req, res) => {
-    const { razon, nombre, direccion, correo, telefono, id_estado } = req.body;
+    const { razon_social, nombre_comercial, direccion_entrega, correo_empresarial, telefono_empresarial, id_estado } = req.body;
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
 
     if (!id_usuario) {
@@ -44,7 +44,7 @@ export const crearCliente = async (req, res) => {
     }
 
     // Instanciamos al cliente que crearemos
-    const cliente = new Cliente(null, razon, nombre, direccion, correo, telefono, id_estado);
+    const cliente = new Cliente(null, razon_social, nombre_comercial, direccion_entrega, correo_empresarial, telefono_empresarial, id_estado);
 
     try {
         const pool = await conectarDB();
@@ -56,7 +56,7 @@ export const crearCliente = async (req, res) => {
 };
 
 export const editarCliente = async (req, res) => {
-    const { razon, nombre, direccion, correo, telefono, id_estado } = req.body;
+    const { razon_social, nombre_comercial, direccion_entrega, correo_empresarial, telefono_empresarial, id_estado } = req.body;
     const id_cliente = req.params.id;
 
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
@@ -66,7 +66,7 @@ export const editarCliente = async (req, res) => {
     }
 
     // Instanciamos el cliente que enviaremos como la informacion actualizada a la db
-    const cliente = new Cliente(id_cliente, razon, nombre, direccion, correo, telefono, id_estado);
+    const cliente = new Cliente(id_cliente, razon_social, nombre_comercial, direccion_entrega, correo_empresarial, telefono_empresarial, id_estado);
 
     try {
         const pool = await conectarDB();
@@ -88,7 +88,7 @@ export const desactivarCliente = async (req, res) => {
     try {
         const pool = await conectarDB();
         await Cliente.desactivarCliente(pool, id_cliente);
-        res.status(201).send('Cliente desactivado con exito.');
+        res.status(200).send('Cliente desactivado con exito.');
     } catch (err) {
         res.status(500).send('Error al intentar desactivar el cliente: ' + err.message);
     }
