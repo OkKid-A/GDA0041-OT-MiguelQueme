@@ -18,6 +18,30 @@ export const obtenerUsuarios = async (req, res) => {
     }
 };
 
+// Endpoint para verificar que el correo de un usuario es unico
+export const verificarUnico = async (req, res) => {
+    const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
+    const { correo } = req.params;
+
+    if (!id_usuario) {
+        return res.status(401).send('No autorizado: No has iniciado sesion.');
+    }
+
+    try {
+        const pool = await conectarDB();
+        const query = `SELECT * FROM usuarios WHERE correo = '${correo}'`
+        const result = await pool.query(query);
+
+        if (result.recordset.length > 0) {
+            res.json({ isUnique: false });
+        } else {
+            res.json({ isUnique: true });
+        }
+    } catch (err) {
+        res.status(500).json({ error: 'Error al intentar verificar si el correo es unico', details: err });
+    }
+};
+
 export const insertarUsuario = async (req, res) => {
     const id_usuario = req.user.id_usuario; // Confirmamos que el token exista en la request
 

@@ -86,13 +86,13 @@ const productSchema = yup.object().shape({
 
 interface ProductSubmitOrEditFormProps {
   onSubmit: (data: ProductSubmitOrEditFormInput) => void;
-  handleCancelar?: () => void;
+  handleCancel?: () => void;
   product: ProductExpanded | null;
 }
 
 const ProductSubmitOrEditForm: React.FC<ProductSubmitOrEditFormProps> = ({
   onSubmit,
-  handleCancelar: handleCancel,
+  handleCancel: handleCancel,
   product,
 }) => {
   const classes = useStylesFormSelect();
@@ -157,6 +157,7 @@ const ProductSubmitOrEditForm: React.FC<ProductSubmitOrEditFormProps> = ({
       setStatus(product.id_estado.toString());
     }
   }, [product, setValue]);
+// Funcion para renderizar multiples texfields al ingresar un arreglo con los datos
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

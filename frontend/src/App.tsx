@@ -15,6 +15,7 @@ import OperatorHomePage from "./pages/Operator/OperatorHomePage.tsx";
 import Layout from "./components/layout/Layout.tsx";
 import ProductsCRUDPage from "./pages/Operator/ProductsCRUDPage.tsx";
 import CategoriesCRUDPage from "./pages/Operator/CategoriesCRUDPage.tsx";
+import UserCRUDPage from "./pages/Operator/UserCRUDPage.tsx";
 
 const App: React.FC = () => {
   return (
@@ -49,6 +50,7 @@ const App: React.FC = () => {
                       <Route path="home" element={<OperatorHomePage />} />
                       <Route path="productos" element={<ProductsCRUDPage />} />
                       <Route path="categorias" element={< CategoriesCRUDPage />} />
+                      <Route path="usuarios" element={< UserCRUDPage />} />
                     </Routes>
                   </Layout>
                 </VerifyRoleGuard>

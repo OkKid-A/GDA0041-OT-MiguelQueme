@@ -58,7 +58,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
       <CategorySubmitForm
         onSubmit={handleSubmit}
         category={category}
-        handleCancelar={handleClose}
+        handleCancel={handleClose}
       />
     </DynamicModal>
   );

@@ -30,13 +30,13 @@ const categorySchema = yup.object().shape({
 
 interface CategorySubmitFormProps {
   onSubmit: (data: CategorySubmitFormInput) => void;
-  handleCancelar?: () => void;
+  handleCancel?: () => void;
   category: CategoryExpanded | null;
 }
 
 const CategorySubmitForm: React.FC<CategorySubmitFormProps> = ({
   onSubmit,
-  handleCancelar: handleCancel,
+   handleCancel,
   category,
 }) => {
   const classes = useStylesFormSelect();
