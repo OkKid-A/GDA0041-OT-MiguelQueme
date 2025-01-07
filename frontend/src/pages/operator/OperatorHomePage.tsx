@@ -52,6 +52,7 @@ const OperatorHomePage: React.FC = () => {
         orders={orders}
         isOperator={true}
         onOrdersUpdate={fetchOrders}
+        onCancel={null}
       />
     </Box>
   );

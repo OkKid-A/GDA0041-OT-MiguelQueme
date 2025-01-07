@@ -9,13 +9,18 @@ import {
   List,
   ListItem,
   ListItemText,
-  Divider, Alert, Avatar, ListItemIcon,
+  Divider,
+  Alert,
+  Avatar,
+  ListItemIcon,
+  IconButton,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import theme from "../../styles/theme.tsx";
 import { Order } from "../../entities/Order.ts";
 import api from "../../utils/api.ts";
 import ApiError from "../../contexts/types/ApiError.tsx";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface ProductDetail {
   id_detalle: number;
@@ -72,18 +77,18 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
   const classes = useStyles();
   const [productDetails, setProductDetails] = useState<ResponseDetail>();
   const [error, setError] = useState<string | null>(null);
+  const [total, setTotal] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
       if (order) {
+        setTotal(order.total_orden);
         try {
-          const response = await api.get(
-            `/ordenes/${order.id_orden}`,
-          );
+          const response = await api.get(`/ordenes/${order.id_orden}`);
           if (response.status === 200) {
             const data = response.data as Record<string, string>;
             const key = Object.keys(data)[0];
-            if (!key){
+            if (!key) {
               console.error("No existe la llave" + response.data);
             }
             const jsonAsString = data[key];
@@ -102,19 +107,56 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
     void fetchOrderDetails();
   }, [order]);
 
+  useEffect(() => {
+      const calculateTotal = () => {
+        if (productDetails) {
+          const newTotal = productDetails?.detalles.reduce((acc, item) => acc + (item.precio * item.cantidad), 0)
+          setTotal(newTotal);
+        }
+      };
+      calculateTotal();
+  }, [productDetails]);
+
   const formatDate = (date: string) => {
     const d = new Date(date);
     return d.toLocaleDateString("es-MX");
   };
 
-  const traducirEstado = (id_estado: number,) => {
+  const traducirEstado = (id_estado: number) => {
     switch (id_estado) {
       case 1:
-          return "Entregada";
+        return "Entregada";
       case 2:
         return "Pendiente";
       default:
         return "Error";
+    }
+  };
+
+  const updateQuantity = (product: ProductDetail, cantidad: number) => {
+    if (productDetails) {
+      const updatedDetails = productDetails.detalles.map((item) =>
+        item.id_producto === product.id_producto
+          ? {
+              ...item,
+              cantidad,
+            }
+          : item,
+      );
+      setProductDetails({ ...productDetails, detalles: updatedDetails });
+    }
+  };
+
+  const removeFromOrder = (product: ProductDetail) => {
+    if(productDetails){
+      const isInCartIndex = productDetails.detalles.findIndex(
+          (item) => item.id_producto === product.id_producto,
+      );
+
+      if (isInCartIndex >= 0) {
+        const updatedDetails = productDetails.detalles.filter((_, index) => index !== isInCartIndex);
+        setProductDetails({...productDetails, detalles: updatedDetails});
+      }
     }
   };
 
@@ -138,7 +180,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
               <Typography variant="h6" component="h2">
                 Detalles de la Orden: {order.id_orden}
               </Typography>
-              <Divider/>
+              <Divider />
               <Typography>
                 Fecha de Creacion: {formatDate(order.fecha_creacion.toString())}
               </Typography>
@@ -149,11 +191,8 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
               <Typography>
                 Nombre: {order.nombre} {order.apellido}
               </Typography>
-              <Typography>Total: Q{order.total_orden.toFixed(2)}</Typography>
-              <Typography>
-                Estado:{" "}
-                {traducirEstado(order.id_estado)}
-              </Typography>
+              <Typography>Total: Q{total?.toFixed(2)}</Typography>
+              <Typography>Estado: {traducirEstado(order.id_estado)}</Typography>
               <Typography>Numero de Productos: {order.cantidad}</Typography>
               <Divider
                 sx={{
@@ -168,16 +207,50 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
                     <ListItem key={product.id_producto}>
                       <ListItemIcon className={classes.listItemIcon}>
                         <Avatar
-                            src={product.foto}
-                            alt={product.nombre}
-                            variant={"rounded"}
-                            className={classes.avatar}
+                          src={product.foto}
+                          alt={product.nombre}
+                          variant={"rounded"}
+                          className={classes.avatar}
                         />
                       </ListItemIcon>
-                      <ListItemText sx={{	".MuiListItemText-secondary":{ color: theme.palette.text.primary}}}
+                      <ListItemText
+                        sx={{
+                          ".MuiListItemText-secondary": {
+                            color: theme.palette.text.primary,
+                          },
+                        }}
                         primary={product.nombre}
                         secondary={`Cantidad: ${product.cantidad}, Precio: Q${product.precio}`}
                       />
+                      <Box className={classes.quantitySelector}>
+                        <IconButton
+                          size={"small"}
+                          onClick={() =>
+                            updateQuantity(product, product.cantidad - 1)
+                          }
+                          disabled={product.cantidad <= 1}
+                          sx={{ color: theme.palette.text.primary }}
+                        >
+                          -
+                        </IconButton>
+                        {product.cantidad}
+                        <IconButton
+                          size={"small"}
+                          onClick={() =>
+                            updateQuantity(product, product.cantidad + 1)
+                          }
+                          sx={{ color: theme.palette.text.primary }}
+                        >
+                          +
+                        </IconButton>
+                      </Box>
+                      <IconButton
+                        sx={{ color: theme.palette.error.main }}
+                        size={"small"}
+                        onClick={() => removeFromOrder(product)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
                     </ListItem>
                   );
                 })}
@@ -190,6 +263,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
                   marginTop: theme.spacing(2),
                 }}
               >
+
                 <Button onClick={handleClose} variant="outlined">
                   Cerrar
                 </Button>

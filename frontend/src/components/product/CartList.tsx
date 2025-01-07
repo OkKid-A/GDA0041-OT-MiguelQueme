@@ -61,7 +61,6 @@ const CartList: React.FC<CardListProps> = ({
                     onClick={() => onUpdateQuantity(product, quantity - 1)}
                     disabled={quantity <= 1}
                     sx={{color:theme.palette.text.primary}}
-
                   >
                     -
                   </IconButton>
