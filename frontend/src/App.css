@@ -1,0 +1,19 @@
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background:
+  radial-gradient(circle at center, rgb(0,20,35) , black);
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+radial-gradient(circle at center, rgb(0,20,35) , black);
+}
+
+* {
+  box-sizing: border-box;
+}
