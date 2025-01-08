@@ -18,7 +18,7 @@ import Button from "@mui/material/Button";
 import { Edit, RemoveCircle } from "@mui/icons-material";
 import { makeStyles } from "@mui/styles";
 import ProductExpanded from "../../entities/ProductExpanded.ts";
-import { formatDate } from "../../utils/formatDate.ts";
+import { formatDate } from "../../utils/functions/formatDate.ts";
 import api from "../../utils/api.ts";
 import ApiError from "../../contexts/types/ApiError.tsx";
 import ProductModal from "./ProductModal.tsx";
@@ -250,7 +250,7 @@ const ProductCRUDTable: React.FC<ProductCRUDTableProps> = ({
                   variant="outlined"
                   disabled={product.id_estado === StatusEnum.INACTIVE}
                   sx={{
-                    color: theme.palette.primary.light,
+                    color: theme.palette.error.light,
                     "&.Mui-disabled": {
                       color: theme.palette.info.dark,
                     },

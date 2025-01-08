@@ -6,6 +6,8 @@ import ApiError from "../../contexts/types/ApiError.tsx";
 import { Alert, Box, Theme, Typography } from "@mui/material";
 import theme from "../../styles/theme.tsx";
 import { makeStyles } from "@mui/styles";
+import parseOrderStatus from "../../utils/functions/parseOrderStatus.ts";
+import Searchbar from "../../components/layout/Searchbar.tsx";
 
 const useStyles = makeStyles((theme: Theme) => ({
   container: {
@@ -16,14 +18,31 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const OperatorHomePage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [displayedOrders, setDisplayedOrders] = useState<Order[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const classes = useStyles();
+
+  useEffect(() => {
+
+    if (searchQuery === '' || searchQuery === null || searchQuery === undefined) {
+      setDisplayedOrders(orders);
+    } else {
+      const filteredOrders = orders.filter( order =>
+          parseOrderStatus(order.id_estado).toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.id_orden.toString() === searchQuery ||
+      order.usuarioNombre?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      setDisplayedOrders(filteredOrders);
+    }
+  }, [searchQuery, orders]);
 
   const fetchOrders = async () => {
     try {
       const response = await api.get("/ordenes");
       if (response.status === 200) {
         setOrders(response.data as Order[]);
+        setDisplayedOrders(orders);
       } else {
         console.error(response.statusText);
         setError(response.statusText);
@@ -45,11 +64,16 @@ const OperatorHomePage: React.FC = () => {
           <Alert severity="error">{error}</Alert>
         </Box>
       )}
-      <Typography component="h3" variant="h3" sx={{ justifySelf: "center",color: theme.palette.text.primary}}>
+      <Typography
+        component="h3"
+        variant="h3"
+        sx={{ justifySelf: "center", color: theme.palette.text.primary }}
+      >
         Historial de Ordenes
       </Typography>
+        <Searchbar label="Busca por ID, Estado o Nombre de Usuario" searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       <OrderHistoryTable
-        orders={orders}
+        orders={displayedOrders}
         isOperator={true}
         onOrdersUpdate={fetchOrders}
         onCancel={null}

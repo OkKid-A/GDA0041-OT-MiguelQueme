@@ -10,6 +10,8 @@ import api from "../../utils/api.ts";
 import useActionsPage from "../../hooks/useActionsPage.ts";
 import CategoriesCRUDTable from "../../components/category/CategoriesCRUDTable.tsx";
 import CategoryModal from "../../components/category/CategoryModal.tsx";
+import Searchbar from "../../components/layout/Searchbar.tsx";
+import parseOrderStatus from "../../utils/functions/parseOrderStatus.ts";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   container: {
@@ -27,6 +29,8 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
 const CategoriesCRUDPage: React.FC = () => {
   const classes = useStyles();
   const [categories, setCategories] = useState<CategoryExpanded[]>([]);
+  const [displayedCategories, setDisplayedCategories] = useState<CategoryExpanded[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const {
     error,
     setError,
@@ -42,6 +46,20 @@ const CategoriesCRUDPage: React.FC = () => {
     void fetchCategories();
     setMessage(message);
   };
+
+  useEffect(() => {
+
+    if (searchQuery === '' || searchQuery === null || searchQuery === undefined) {
+      setDisplayedCategories(categories);
+    } else {
+      const filteredUsers = categories.filter( category =>
+          parseOrderStatus(category.id_estado).toLowerCase().includes(searchQuery.toLowerCase()) ||
+          category.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          category.id_categoria.toString() === searchQuery
+      )
+      setDisplayedCategories(filteredUsers);
+    }
+  }, [searchQuery, categories]);
 
   const fetchCategories = async () => {
     try {
@@ -81,11 +99,12 @@ const CategoriesCRUDPage: React.FC = () => {
         <Typography component="h3" variant="h3" sx={{color: theme.palette.text.primary}}>
           Categorias
         </Typography>
+        <Searchbar label="Buscar por nombre, estado o ID" searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         <Button variant="contained" onClick={handleOpen}>
           <Add /> Añadir Categoria
         </Button>
       </Box>
-      <CategoriesCRUDTable categories={categories} onUpdate={fetchCategories} />
+      <CategoriesCRUDTable categories={displayedCategories} onUpdate={fetchCategories} />
       <CategoryModal
         handleClose={handleClose}
         handleResult={handleResult}

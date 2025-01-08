@@ -4,6 +4,6 @@ export interface AuthContextType {
   token: string | null;
   role: number | null;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   revisarAuth: () => Promise<void>;
 }

@@ -12,7 +12,8 @@ export const obtenerUsuarios = async (req, res) => {
     try {
         const pool = await conectarDB();
         const usuarios = await Usuario.obtenerUsuarios(pool);
-        res.status(200).send(usuarios);
+        const sinOrigen = usuarios.filter((usuario) => usuario.id_usuario !== id_usuario);
+        res.status(200).send(sinOrigen);
     } catch (err) {
         res.status(500).send('Error al recuperar usuarios: ' + err.message);
     }
@@ -101,8 +102,27 @@ export const desactivarUsuario = async (req, res) => {
 
     try {
         const pool = await conectarDB();
-        // Usamos una funcion estatica para desactivarCategoria al usuario
+        // Usamos una funcion estatica para desactivar al usuario
         await Usuario.desactivarUsuarios(pool, id);
+        res.status(200).send({ message: 'Usuario desactivado exitosamente.' });
+    } catch (err) {
+        res.status(500).send('Error al desactivar el usuario: ' + err.message);
+    }
+};
+
+export const activarUsuario = async (req, res) => {
+    const id = req.params.id;
+
+    const id_usuario = req.user.id_usuario;
+
+    if (!id_usuario) {
+        return res.status(401).send('No autorizado: No has iniciado sesion.');
+    }
+
+    try {
+        const pool = await conectarDB();
+        // Usamos una funcion estatica para activar al usuario
+        await Usuario.activarUsuarios(pool, id);
         res.status(200).send({ message: 'Usuario desactivado exitosamente.' });
     } catch (err) {
         res.status(500).send('Error al desactivar el usuario: ' + err.message);

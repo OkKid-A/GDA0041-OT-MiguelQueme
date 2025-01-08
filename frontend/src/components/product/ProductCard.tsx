@@ -17,12 +17,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     maxWidth: 350,
     margin: theme.spacing(1),
     flexDirection: "column",
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
+    overflow: "hidden",
   },
   cardImage: {
     height: 200,
-    display: "flex",
     width: "auto",
+    overflow: "hidden",
+    justifySelf: "center",
   },
   cardContent: {
     paddingBottom: "0 !important",
