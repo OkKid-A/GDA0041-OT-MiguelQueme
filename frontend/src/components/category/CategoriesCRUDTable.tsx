@@ -18,8 +18,8 @@ import ApiError from "../../contexts/types/ApiError.tsx";
 import {
   RenderTableHeaderCell,
   TableHeader,
-} from "../../utils/RenderTableHeader.tsx";
-import { formatDate } from "../../utils/formatDate.ts";
+} from "../../utils/render/RenderTableHeader.tsx";
+import { formatDate } from "../../utils/functions/formatDate.ts";
 import Button from "@mui/material/Button";
 import { StatusEnum } from "../../entities/StatusEnum.ts";
 import theme from "../../styles/theme.tsx";
@@ -173,7 +173,7 @@ const CategoriesCRUDTable: React.FC<CategoriesCRUDTableProps> = ({
                   variant="outlined"
                   disabled={category.id_estado === StatusEnum.INACTIVE}
                   sx={{
-                    color: theme.palette.primary.light,
+                    color: theme.palette.error.light,
                     "&.Mui-disabled": {
                       color: theme.palette.info.dark,
                     },

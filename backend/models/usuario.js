@@ -56,6 +56,12 @@ class Usuario {
             .execute(`bloquearUsuario`);
     }
 
+    static async activarUsuarios(pool,id_usuario) {
+        await pool.request()
+            .input('id_usuario', sql.Int, id_usuario)
+            .execute(`desbloquearUsuario`);
+    }
+
     async insertarUsuario(password, pool) {
 
         const resultado = await pool.request()

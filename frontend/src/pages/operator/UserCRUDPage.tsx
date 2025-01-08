@@ -10,6 +10,7 @@ import Button from "@mui/material/Button";
 import { Add } from "@mui/icons-material";
 import UserModal from "../../components/usuario/UserModal.tsx";
 import UserCRUDTable from "../../components/usuario/UserCRUDTable.tsx";
+import Searchbar from "../../components/layout/Searchbar.tsx";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   container: {
@@ -27,6 +28,9 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
 const UserCRUDPage: React.FC = () => {
   const classes = useStyles();
   const [users, setUsers] = useState<UserExpanded[]>([]);
+  const [displayedUsers, setDisplayedUsers] = useState<UserExpanded[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
+
   const {
     error,
     setError,
@@ -43,11 +47,26 @@ const UserCRUDPage: React.FC = () => {
     setMessage(message);
   };
 
+  useEffect(() => {
+    if (searchQuery === '' || searchQuery === null || searchQuery === undefined) {
+      setDisplayedUsers(users);
+    } else {
+      const filteredUsers = users.filter( user =>
+          user.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.apellido.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.cliente.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.id_usuario.toString() === searchQuery
+      )
+      setDisplayedUsers(filteredUsers);
+    }
+  }, [searchQuery, users]);
+
   const fetchUsers = async () => {
     try {
       const response = await api.get("/usuarios/");
       if (response.status === 200) {
         setUsers(response.data as UserExpanded[]);
+        setDisplayedUsers(users);
       } else {
         console.error(response.status);
         setError(response.statusText);
@@ -85,11 +104,12 @@ const UserCRUDPage: React.FC = () => {
         >
           Usuarios
         </Typography>
+        <Searchbar label="Buscar por nombre, apellido, cliente o ID" searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         <Button variant="contained" onClick={handleOpen}>
           <Add /> Añadir usuario
         </Button>
       </Box>
-      <UserCRUDTable users={users} onUpdate={fetchUsers}/>
+      <UserCRUDTable users={displayedUsers} onUpdate={fetchUsers}/>
       <UserModal open={openModal} handleClose={handleClose} handleResult={handleResult}/>
     </Box>
   );

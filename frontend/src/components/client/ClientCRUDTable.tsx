@@ -23,7 +23,7 @@ import { Client } from "../../entities/Client.ts";
 import {
   RenderTableHeaderCell,
   TableHeader,
-} from "../../utils/RenderTableHeader.tsx";
+} from "../../utils/render/RenderTableHeader.tsx";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   tableContainer: {
@@ -177,7 +177,7 @@ const ClientCRUDTable: React.FC<ClientCRUDTableProps> = ({
                   variant="outlined"
                   disabled={client.id_estado === StatusEnum.INACTIVE}
                   sx={{
-                    color: theme.palette.primary.light,
+                    color: theme.palette.error.light,
                     "&.Mui-disabled": {
                       color: theme.palette.info.dark,
                     },

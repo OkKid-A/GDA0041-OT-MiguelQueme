@@ -35,6 +35,29 @@ export const insertarOrdenConDetalle = async (req, res) => {
     }
 };
 
+export const actualizarDetalles = async (req, res) => {
+    const id_usuario = req.user.id_usuario;
+    const id_orden = req.params.id;
+    const {json} = req.body;
+
+    if (!id_usuario){
+        return res.status(401).send('No autorizado: No has iniciado sesion.');
+    }
+
+    if (!id_orden) {
+        return res.status(404).send('No se encontro un id_orden' + req.params.id)
+    }
+
+    try {
+        const jsonString = JSON.stringify(json);
+        const pool = await conectarDB();
+        await Orden.actualizarDetalles(jsonString, id_orden,pool);
+        res.status(200).send( {message:'Orden actualizada con éxito.', json:jsonString } );
+    } catch (err) {
+        res.status(500).send('Error al actualizar la orden: ' + err.message);
+    }
+}
+
 export const actualizarOrden = async (req, res) => {
     const id_usuario = req.user.id_usuario;
     const id_orden = req.params.id;

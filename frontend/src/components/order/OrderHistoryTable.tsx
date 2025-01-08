@@ -25,17 +25,24 @@ import OrderHistoryModal from "./OrderHistoryModal.tsx";
 import Button from "@mui/material/Button";
 import api from "../../utils/api.ts";
 import ApiError from "../../contexts/types/ApiError.tsx";
-import { formatDate } from "../../utils/formatDate.ts";
+import { formatDate } from "../../utils/functions/formatDate.ts";
+import parseOrderStatus from "../../utils/functions/parseOrderStatus.ts";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   tableContainer: {
-    maxWidth: "90%",
+    maxWidth: "90% !important",
+    maxHeight: "80vh",
     margin: theme.spacing(2, "auto"),
   },
   tableHeader: {
     color: theme.palette.text.secondary,
     flexGrow: 2,
   },
+  tableHeaderCell: {
+    backgroundColor: `${theme.palette.primary.main} !important`,
+    color: `${theme.palette.text.secondary} !important`,
+    fontWeight: "bold !important"
+  }
 }));
 
 interface OrderHistoryTableProps {
@@ -62,9 +69,13 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
     setOpenModal(true);
   };
 
-  const handleClose = () => {
+  const handleClose = (message:string | null) => {
     setOpenModal(false);
     setfocusedOrder(null);
+    onOrdersUpdate();
+    if (message) {
+      setMessage(message);
+    }
   };
 
   const handleOnClose = () => {
@@ -114,20 +125,6 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
     }
   };
 
-
-  const traducirEstado = (id_estado: StatusEnum) => {
-    switch (id_estado) {
-      case StatusEnum.ACTIVE:
-        return "Entregada";
-      case StatusEnum.PENDING:
-        return "Pendiente";
-      case StatusEnum.REJECTED:
-        return "Rechazada";
-      default:
-        return "Borrada";
-    }
-  };
-
   const formatOrders = (orders: Order[]) => {
     if (isOperator) {
       return orders;
@@ -159,73 +156,73 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
         <Alert severity="error">{error}</Alert>
       </Snackbar>
 
-      <Table>
+      <Table stickyHeader ={true}>
         <TableHead sx={{ backgroundColor: theme.palette.primary.main }}>
           <TableRow>
             <TableCell
-              sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+            className={classes.tableHeaderCell}
             >
               ID
             </TableCell>
             <TableCell
-              sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+            className={classes.tableHeaderCell}
               align="right"
             >
               Fecha de creación
             </TableCell>
             <TableCell
-              sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+            className={classes.tableHeaderCell}
               align="right"
             >
               Fecha de entrega
             </TableCell>
             <TableCell
-              sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+            className={classes.tableHeaderCell}
               align="center"
             >
               Direccion de entrega
             </TableCell>
             {isOperator && (
               <TableCell
-                sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+              className={classes.tableHeaderCell}
                 align="right"
               >
                 Nombre de Usuario
               </TableCell>
             )}
             <TableCell
-              sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+            className={classes.tableHeaderCell}
               align="right"
             >
               Nombre en factura
             </TableCell>
             <TableCell
-              sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+            className={classes.tableHeaderCell}
               align="right"
             >
               Total
             </TableCell>
             <TableCell
-              sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+            className={classes.tableHeaderCell}
               align="right"
             >
               Estado
             </TableCell>
             <TableCell
-              sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+            className={classes.tableHeaderCell}
               align="right"
             >
               No. productos
             </TableCell>
             <TableCell
-              sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+            className={classes.tableHeaderCell}
               align="center"
             >
               Detalles
             </TableCell>
             {isOperator && (
               <TableCell
-                sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+              className={classes.tableHeaderCell}
                 align="center"
               >
                 Entregar
@@ -233,7 +230,7 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
             )}
             {isOperator && (
               <TableCell
-                sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+              className={classes.tableHeaderCell}
                 align="center"
               >
                 Rechazar
@@ -241,13 +238,13 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
             )}
             {!isOperator && (
               <TableCell
-                sx={{ color: theme.palette.text.secondary, fontWeight: "bold" }}
+              className={classes.tableHeaderCell}
                 align="center"
               ></TableCell>
             )}
           </TableRow>
         </TableHead>
-        <TableBody>
+        <TableBody sx={{overflowY: 'auto', flexGrow: 1}}>
           {formatOrders(orders).map((order) => (
             <TableRow
               key={order.id_orden}
@@ -275,7 +272,7 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
                 Q{order.total_orden.toFixed(2)}
               </TableCell>
               <TableCell align="right">
-                {traducirEstado(order.id_estado)}
+                {parseOrderStatus(order.id_estado)}
               </TableCell>
               <TableCell align="right">{order.cantidad}</TableCell>
               <TableCell align="center">
@@ -315,7 +312,7 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
                     variant="outlined"
                     disabled={order.id_estado !== StatusEnum.PENDING}
                     sx={{
-                      color: theme.palette.primary.light,
+                      color: theme.palette.error.light,
                       "&.Mui-disabled": {
                         color: theme.palette.info.dark,
                       },
@@ -332,7 +329,7 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
                     variant="outlined"
                     disabled={order.id_estado !== StatusEnum.PENDING}
                     sx={{
-                      color: theme.palette.primary.light,
+                      color: theme.palette.error.light,
                       "&.Mui-disabled": {
                         color: theme.palette.info.dark,
                       },
@@ -352,6 +349,7 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
         open={openModal}
         handleClose={handleClose}
         order={focusedOrder}
+        isOperator={isOperator}
       />
     </TableContainer>
   );

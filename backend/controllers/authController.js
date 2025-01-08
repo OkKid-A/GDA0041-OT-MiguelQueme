@@ -58,8 +58,7 @@ export const login = async (req, res) => {
 // Endpoint para cerrar sesion en la api para mayor seguridad
 export const logout = async (req, res) => {
     try {
-        const authHeader = req.headers['autorizador']; // Obtenemos el token del header autorizador
-        const token = authHeader && authHeader.split(' ')[1];
+        const token = req.cookies.authToken;
 
         // Guardamos el token en una blacklist por el resto de su existencia
         blacklistToken(token)

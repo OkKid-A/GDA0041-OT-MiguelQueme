@@ -14,7 +14,7 @@ import {
 import {
   RenderTableHeaderCell,
   TableHeader,
-} from "../../utils/RenderTableHeader.tsx";
+} from "../../utils/render/RenderTableHeader.tsx";
 import UserExpanded from "../../entities/UserExpanded.ts";
 import React, { useState } from "react";
 import api from "../../utils/api.ts";
@@ -22,8 +22,8 @@ import ApiError from "../../contexts/types/ApiError.tsx";
 import Button from "@mui/material/Button";
 import { StatusEnum } from "../../entities/StatusEnum.ts";
 import theme from "../../styles/theme.tsx";
-import { RemoveCircle } from "@mui/icons-material";
-import { formatDate } from "../../utils/formatDate.ts";
+import {AddCircle, RemoveCircle} from "@mui/icons-material";
+import { formatDate } from "../../utils/functions/formatDate.ts";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   tableContainer: {
@@ -55,7 +55,7 @@ const tableHeaders: TableHeader[] = [
   { label: "Rol", align: "center" },
   { label: "Cliente", align: "center" },
   { label: "Estado", align: "center" },
-  { label: "Desactivar", align: "center" },
+  { label: "Bloquear o Desbloquear", align: "center" },
 ];
 
 interface UserCRUDTableProps {
@@ -91,6 +91,25 @@ const UserCRUDTable: React.FC<UserCRUDTableProps> = ({ users, onUpdate }) => {
       }
     }
   };
+
+  const handleActivate = async (id: number) => {
+    if (id) {
+      try {
+        const response = await api.put(`/usuarios/activar/${id}`);
+        if (response.status === 200) {
+          onUpdate();
+          setMessage("Usuario desbloqueado con exito");
+        } else {
+          setError(
+              "Error al intentar desbloqueado al usuario: " + response.statusText,
+          );
+        }
+      } catch (error) {
+        const apiError = error as ApiError;
+        setError(apiError.message);
+      }
+    }
+  }
 
   return (
     <TableContainer
@@ -146,12 +165,11 @@ const UserCRUDTable: React.FC<UserCRUDTableProps> = ({ users, onUpdate }) => {
               <TableCell align="center">{user.rol}</TableCell>
               <TableCell align="center">{user.cliente ? user.cliente : "Independiente"}</TableCell>
               <TableCell align="center">{user.estado}</TableCell>
-              <TableCell align="center">
+              {user.id_estado === StatusEnum.ACTIVE && <TableCell align="center">
                 <Button
                   variant="outlined"
-                  disabled={user.id_estado === StatusEnum.INACTIVE}
                   sx={{
-                    color: theme.palette.primary.light,
+                    color: theme.palette.error.light,
                     "&.Mui-disabled": {
                       color: theme.palette.info.dark,
                     },
@@ -161,6 +179,22 @@ const UserCRUDTable: React.FC<UserCRUDTableProps> = ({ users, onUpdate }) => {
                   <RemoveCircle /> Desactivar
                 </Button>
               </TableCell>
+              }
+              {user.id_estado === StatusEnum.INACTIVE && <TableCell align="center">
+                <Button
+                    variant="outlined"
+                    sx={{
+                      color: theme.palette.primary.light,
+                      "&.Mui-disabled": {
+                        color: theme.palette.info.dark,
+                      },
+                    }}
+                    onClick={() => handleActivate(user.id_usuario)}
+                >
+                  <AddCircle /> Activar
+                </Button>
+              </TableCell>
+              }
             </TableRow>
           ))}
         </TableBody>

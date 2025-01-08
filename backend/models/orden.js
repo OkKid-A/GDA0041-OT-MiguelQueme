@@ -25,6 +25,13 @@ class Orden {
             .execute(`insertarOrdenConDetalles`);
     }
 
+    static async actualizarDetalles(json, id_orden, pool){
+        await pool.request()
+            .input('id_orden', sql.Int, id_orden)
+            .input('json', sql.NVarChar ,json)
+            .execute(`actualizarDetallesDeOrden`);
+    }
+
     async actualizarOrden(pool){
         await pool.request()
             .input('id_orden', sql.Int, this.id_orden)

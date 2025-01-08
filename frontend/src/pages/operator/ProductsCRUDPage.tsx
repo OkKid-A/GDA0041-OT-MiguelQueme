@@ -10,6 +10,7 @@ import { Add } from "@mui/icons-material";
 import Button from "@mui/material/Button";
 import ProductModal from "../../components/product/ProductModal.tsx";
 import useActionsPage from "../../hooks/useActionsPage.ts";
+import Searchbar from "../../components/layout/Searchbar.tsx";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
   container: {
@@ -27,6 +28,8 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
 const ProductsCRUDPage: React.FC = () => {
   const classes = useStyles();
   const [products, setProducts] = useState<ProductExpanded[]>([]);
+  const [displayedProducts, setDisplayedProducts] = useState<ProductExpanded[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const {
     error,
     setError,
@@ -43,11 +46,26 @@ const ProductsCRUDPage: React.FC = () => {
     setMessage(message);
   }
 
+  useEffect(() => {
+    if (searchQuery === '' || searchQuery === null || searchQuery === undefined) {
+      setDisplayedProducts(products);
+    } else {
+      const filteredProducts = products.filter( product =>
+          product.marca.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.categoria.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.id_producto.toString() === searchQuery
+      )
+      setDisplayedProducts(filteredProducts);
+    }
+  }, [searchQuery, products]);
+
   const fetchProducts = async () => {
     try {
       const response = await api.get("/productos/todos");
       if (response.status === 200) {
         setProducts(response.data as ProductExpanded[]);
+        setDisplayedProducts(products);
       } else {
         console.error(response.statusText);
         setError(response.statusText);
@@ -81,11 +99,12 @@ const ProductsCRUDPage: React.FC = () => {
         <Typography component="h3" variant="h3" sx={{color: theme.palette.text.primary}}>
           Productos
         </Typography>
+        <Searchbar label="Busca por ID, nombre, categoria o marca" searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         <Button  variant="contained" onClick={handleOpen}>
           <Add /> Añadir Producto
         </Button>
       </Box>
-      <ProductCRUDTable products={products} onUpdate={fetchProducts} />
+      <ProductCRUDTable products={displayedProducts} onUpdate={fetchProducts} />
       <ProductModal handleClose={handleClose} handleResult={handleResult} open={openModal} product={null}/>
     </Box>
   );

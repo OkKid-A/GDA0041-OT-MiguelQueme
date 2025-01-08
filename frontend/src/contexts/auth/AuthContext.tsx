@@ -86,10 +86,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     setToken(null);
     document.cookie = "userToken=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/"; //Borramos la cookie
-    navigate("/login");
+    try {
+      // Obtenemos el token de la API
+      const response = await api.post("/auth/logout",);
+      if (response.status === 200) {
+        navigate("/login");
+      } else {
+        console.error("Credenciales invalidas");
+      }
+    } catch (error) {
+      const apiError = error as ApiError;
+      const errorMessage =
+          apiError.message ?? "Error desconocido al iniciar sesión";throw new Error(errorMessage);
+    }
   };
 
   if (loading) {

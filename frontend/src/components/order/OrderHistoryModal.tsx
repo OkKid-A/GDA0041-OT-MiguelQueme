@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -14,6 +14,8 @@ import {
   Avatar,
   ListItemIcon,
   IconButton,
+  ClickAwayListener,
+  Paper,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import theme from "../../styles/theme.tsx";
@@ -21,18 +23,11 @@ import { Order } from "../../entities/Order.ts";
 import api from "../../utils/api.ts";
 import ApiError from "../../contexts/types/ApiError.tsx";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-interface ProductDetail {
-  id_detalle: number;
-  id_producto: number;
-  cantidad: number;
-  precio: number;
-  subtotal: number;
-  nombre: string;
-  marca: string;
-  codigo: string;
-  foto: string;
-}
+import { StatusEnum } from "../../entities/StatusEnum.ts";
+import parseOrderStatus from "../../utils/functions/parseOrderStatus.ts";
+import CustomTextFieldDark from "../layout/CustomTextFieldDark.tsx";
+import Product from "../../entities/Product.ts";
+import ProductDetail from "../../entities/ProductDetail.ts";
 
 interface ResponseDetail {
   id_orden: number;
@@ -51,8 +46,9 @@ interface ResponseDetail {
 
 interface OrderHistoryModalProps {
   open: boolean;
-  handleClose: () => void;
+  handleClose: (message: string | null) => void;
   order: Order | null;
+  isOperator: boolean;
 }
 
 const useStyles = makeStyles<Theme>((theme: Theme) => ({
@@ -66,6 +62,29 @@ const useStyles = makeStyles<Theme>((theme: Theme) => ({
     border: `2px solid ${theme.palette.primary.main}`,
     padding: theme.spacing(3),
     borderRadius: theme.shape.borderRadius,
+    maxWidth: 425,
+  },
+  listBody: {
+    maxHeight: "40vh",
+    overflowY: "auto",
+  },
+  searchListContainer: {
+    position: "absolute",
+    width: "20%",
+    maxHeight: 200,
+    overflowY: "auto",
+    justifyContent: "center",
+    backgroundColor: `${theme.palette.info.dark} !important`,
+    zIndex: 1000,
+  },
+  searchListItem: {
+    cursor: "pointer",
+    "&:hover": {
+      backgroundColor: theme.palette.action.hover,
+    },
+  },
+  searchList: {
+    padding: theme.spacing(1),
   },
 }));
 
@@ -73,11 +92,94 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
   open,
   handleClose,
   order,
+  isOperator,
 }) => {
   const classes = useStyles();
+
+  const [products, setProducts] = useState<Product[]>([]);
   const [productDetails, setProductDetails] = useState<ResponseDetail>();
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string | null>("");
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+    setIsOpen(true);
+  };
+
+  const handleSelectedProduct = (product: Product) => {
+    const newDetail: ProductDetail = {
+      id_detalle: null,
+      precio: product.precio,
+      id_producto: product.id_producto,
+      cantidad: 1,
+      subtotal: product.precio,
+      marca: product.marca,
+      codigo: product.codigo,
+      foto: product.foto,
+      nombre: product.nombre,
+    };
+    setProductDetails((prevDetails) => {
+      if (!prevDetails) {
+        return;
+      } else {
+        return {
+          ...prevDetails,
+          detalles: [...(prevDetails.detalles || []), newDetail],
+        };
+      }
+    });
+    setSearchQuery("");
+    setIsOpen(false);
+  };
+
+  const handleClickAway = () => {
+    setIsOpen(false);
+  };
+
+  const fetchProducts = async () => {
+    console.log("Fetching products...");
+    try {
+      const response = await api.get("/productos");
+      if (response.status === 200) {
+        setProducts(response.data as Product[]);
+      } else {
+        console.error(response.statusText);
+      }
+    } catch (error) {
+      const apiError = error as ApiError;
+      setError(apiError.message);
+    }
+  };
+
+  useEffect(() => {
+    void fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const filterItems = () => {
+      if (!searchQuery) {
+        setFilteredProducts([]);
+        return;
+      }
+
+      const filtered = products.filter((item) => {
+        const itemText = item.nombre.toLowerCase();
+        return itemText.includes(searchQuery.toLowerCase());
+      });
+      const productFilteded = filtered.filter(
+        (product) =>
+          !productDetails?.detalles.some(
+            (detail) => detail.id_producto === product.id_producto,
+          ),
+      );
+      setFilteredProducts(productFilteded);
+    };
+    filterItems();
+  }, [searchQuery, products]);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -108,29 +210,21 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
   }, [order]);
 
   useEffect(() => {
-      const calculateTotal = () => {
-        if (productDetails) {
-          const newTotal = productDetails?.detalles.reduce((acc, item) => acc + (item.precio * item.cantidad), 0)
-          setTotal(newTotal);
-        }
-      };
-      calculateTotal();
+    const calculateTotal = () => {
+      if (productDetails) {
+        const newTotal = productDetails?.detalles.reduce(
+          (acc, item) => acc + item.precio * item.cantidad,
+          0,
+        );
+        setTotal(newTotal);
+      }
+    };
+    calculateTotal();
   }, [productDetails]);
 
   const formatDate = (date: string) => {
     const d = new Date(date);
     return d.toLocaleDateString("es-MX");
-  };
-
-  const traducirEstado = (id_estado: number) => {
-    switch (id_estado) {
-      case 1:
-        return "Entregada";
-      case 2:
-        return "Pendiente";
-      default:
-        return "Error";
-    }
   };
 
   const updateQuantity = (product: ProductDetail, cantidad: number) => {
@@ -148,14 +242,47 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
   };
 
   const removeFromOrder = (product: ProductDetail) => {
-    if(productDetails){
-      const isInCartIndex = productDetails.detalles.findIndex(
-          (item) => item.id_producto === product.id_producto,
+    if (productDetails) {
+      const updatedDetails = productDetails.detalles.map((item) =>
+          item.id_producto === product.id_producto
+              ? {
+                ...item,
+                subtotal : null,
+              }
+              : item,
       );
+      console.log(updatedDetails);
 
-      if (isInCartIndex >= 0) {
-        const updatedDetails = productDetails.detalles.filter((_, index) => index !== isInCartIndex);
-        setProductDetails({...productDetails, detalles: updatedDetails});
+        setProductDetails({ ...productDetails, detalles: updatedDetails });
+      }
+  };
+
+  // Funcion para formatear los datos actualizados de los detalles en un json
+  const formatedProductDetailsToJSON = (details: ProductDetail[]) => {
+    return details.map((item) => ({
+      id_producto: item.id_producto,
+      cantidad: item.cantidad,
+      precio: item.precio,
+      subtotal: (item.subtotal===null ? null : item.precio * item.cantidad ),
+      id_detalle: item.id_detalle,
+    }));
+  };
+
+  const handleOrderUpdate = async () => {
+    if (order) {
+      try {
+        console.log(productDetails!.detalles);
+        const response = await api.put(`/ordenes/detalles/${order.id_orden}`, {
+          json: formatedProductDetailsToJSON(productDetails!.detalles),
+        });
+        if (response.status === 200) {
+          handleClose("Los cambios a la orden han sido guardados con éxito.");
+        } else {
+          setError(response.statusText);
+        }
+      } catch (error) {
+        const apiError = error as ApiError;
+        setError(apiError.message);
       }
     }
   };
@@ -163,7 +290,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
   return (
     <Modal
       open={open}
-      onClose={handleClose}
+      onClose={() => handleClose(null)}
       aria-labelledby="transition-modal-title"
       aria-describedby="transition-modal-description"
       className={classes.modal}
@@ -192,8 +319,12 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
                 Nombre: {order.nombre} {order.apellido}
               </Typography>
               <Typography>Total: Q{total?.toFixed(2)}</Typography>
-              <Typography>Estado: {traducirEstado(order.id_estado)}</Typography>
-              <Typography>Numero de Productos: {order.cantidad}</Typography>
+              <Typography>
+                Estado: {parseOrderStatus(order.id_estado)}
+              </Typography>
+              <Typography>
+                Número de Productos: {productDetails?.detalles.length}
+              </Typography>
               <Divider
                 sx={{
                   marginTop: theme.spacing(2),
@@ -201,59 +332,109 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
                 }}
               />
               <Typography variant={"h6"}>Productos</Typography>
-              <List>
-                {productDetails?.detalles.map((product: ProductDetail) => {
-                  return (
-                    <ListItem key={product.id_producto}>
-                      <ListItemIcon className={classes.listItemIcon}>
-                        <Avatar
-                          src={product.foto}
-                          alt={product.nombre}
-                          variant={"rounded"}
-                          className={classes.avatar}
+              {isOperator &&
+                  order?.id_estado === StatusEnum.PENDING && (
+                  <ClickAwayListener onClickAway={handleClickAway}>
+                <div>
+                  <CustomTextFieldDark
+                    label="Agregar un producto"
+                    fullWidth
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    onFocus={() => setIsOpen(true)}
+                    id="reference"
+                  />
+                  {isOpen && (
+                    <Paper
+                      className={classes.searchListContainer}
+                      ref={listRef}
+                    >
+                      <List className={classes.searchList}>
+                        {filteredProducts.map((item) => (
+                          <ListItem
+                            key={item.id_producto}
+                            className={classes.searchListItem}
+                            onClick={() => handleSelectedProduct(item)}
+                          >
+                            <ListItemIcon className={classes.listItemIcon}>
+                              <Avatar
+                                src={item.foto}
+                                alt={item.nombre}
+                                variant={"rounded"}
+                                className={classes.avatar}
+                              />
+                            </ListItemIcon>
+                            <ListItemText primary={item.nombre} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Paper>
+                  )}
+                </div>
+              </ClickAwayListener>
+                  )
+              }
+              <List className={classes.listBody}>
+                {productDetails?.detalles
+                  .filter((product) => product.subtotal != null)
+                  .map((product: ProductDetail) => {
+                    return (
+                      <ListItem key={product.id_producto}>
+                        <ListItemIcon className={classes.listItemIcon}>
+                          <Avatar
+                            src={product.foto}
+                            alt={product.nombre}
+                            variant={"rounded"}
+                            className={classes.avatar}
+                          />
+                        </ListItemIcon>
+                        <ListItemText
+                          sx={{
+                            ".MuiListItemText-secondary": {
+                              color: theme.palette.text.primary,
+                            },
+                          }}
+                          primary={product.nombre}
+                          secondary={`Cantidad: ${product.cantidad}, Precio: Q${product.precio}`}
                         />
-                      </ListItemIcon>
-                      <ListItemText
-                        sx={{
-                          ".MuiListItemText-secondary": {
-                            color: theme.palette.text.primary,
-                          },
-                        }}
-                        primary={product.nombre}
-                        secondary={`Cantidad: ${product.cantidad}, Precio: Q${product.precio}`}
-                      />
-                      <Box className={classes.quantitySelector}>
-                        <IconButton
-                          size={"small"}
-                          onClick={() =>
-                            updateQuantity(product, product.cantidad - 1)
-                          }
-                          disabled={product.cantidad <= 1}
-                          sx={{ color: theme.palette.text.primary }}
-                        >
-                          -
-                        </IconButton>
-                        {product.cantidad}
-                        <IconButton
-                          size={"small"}
-                          onClick={() =>
-                            updateQuantity(product, product.cantidad + 1)
-                          }
-                          sx={{ color: theme.palette.text.primary }}
-                        >
-                          +
-                        </IconButton>
-                      </Box>
-                      <IconButton
-                        sx={{ color: theme.palette.error.main }}
-                        size={"small"}
-                        onClick={() => removeFromOrder(product)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </ListItem>
-                  );
-                })}
+                        {isOperator &&
+                          order?.id_estado === StatusEnum.PENDING && (
+                            <Box className={classes.quantitySelector}>
+                              <IconButton
+                                size={"small"}
+                                onClick={() =>
+                                  updateQuantity(product, product.cantidad - 1)
+                                }
+                                disabled={product.cantidad <= 1}
+                                sx={{ color: theme.palette.text.primary }}
+                              >
+                                -
+                              </IconButton>
+                              {product.cantidad}
+                              <IconButton
+                                size={"small"}
+                                onClick={() =>
+                                  updateQuantity(product, product.cantidad + 1)
+                                }
+                                sx={{ color: theme.palette.text.primary }}
+                              >
+                                +
+                              </IconButton>
+                            </Box>
+                          )}
+                        {isOperator &&
+                          order?.id_estado === StatusEnum.PENDING && (
+                            <IconButton
+                              sx={{ color: theme.palette.error.main }}
+                              size={"small"}
+                              onClick={() => removeFromOrder(product)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          )}
+                      </ListItem>
+                    );
+                  })}
               </List>
               <Box
                 sx={{
@@ -263,8 +444,16 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
                   marginTop: theme.spacing(2),
                 }}
               >
-
-                <Button onClick={handleClose} variant="outlined">
+                {isOperator && order?.id_estado === StatusEnum.PENDING && (
+                  <Button onClick={handleOrderUpdate} variant={"outlined"}>
+                    Guardar Cambios
+                  </Button>
+                )}
+                <Button
+                  onClick={() => handleClose(null)}
+                  variant="contained"
+                  sx={{ backgroundColor: theme.palette.error.main }}
+                >
                   Cerrar
                 </Button>
               </Box>
