@@ -1,4 +1,3 @@
-import { conectarDB } from '../config/db.js';
 import Orden from '../models/orden.js';
 
 export const obtenerOrdenes = async (req, res) => {
@@ -9,9 +8,8 @@ export const obtenerOrdenes = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        const resultado = await Orden.obtenerOrdenes(pool);
-        return res.status(200).send(resultado.recordset);
+        const resultado = await Orden.obtenerOrdenes();
+        return res.status(200).send(resultado);
     } catch (err) {
         return res.status(401).send('Error al recuperar las ordenes: ' + err.message);
     }
@@ -27,8 +25,7 @@ export const insertarOrdenConDetalle = async (req, res) => {
 
     try {
         const jsonString = JSON.stringify(json);
-        const pool = await conectarDB();
-        await Orden.insertarOrdenConDetalles(direccion,fecha_entrega, pool, jsonString, id_usuario);
+        await Orden.insertarOrdenConDetalles(direccion,fecha_entrega, jsonString, id_usuario);
         res.status(200).send('Orden ingresada con éxito.');
     } catch (err) {
         res.status(500).send('Error al ingresar la orden: ' + err.message);
@@ -50,8 +47,7 @@ export const actualizarDetalles = async (req, res) => {
 
     try {
         const jsonString = JSON.stringify(json);
-        const pool = await conectarDB();
-        await Orden.actualizarDetalles(jsonString, id_orden,pool);
+        await Orden.actualizarDetalles(jsonString, id_orden);
         res.status(200).send( {message:'Orden actualizada con éxito.', json:jsonString } );
     } catch (err) {
         res.status(500).send('Error al actualizar la orden: ' + err.message);
@@ -71,24 +67,9 @@ export const actualizarOrden = async (req, res) => {
         return res.status(404).send('No se encontro un id_orden' + req.params.id)
     }
 
-    const orden = new Orden(
-        id_orden,
-        nombre,
-        apellido,
-        direccion,
-        telefono,
-        correo,
-        fecha_entrega,
-        total_orden,
-        null, // fecha_creacion no se actualizara
-        null, // id_usuario no se puede actualizar
-        id_estado
-    );
-
     try {
-        const pool = await conectarDB();
-        await orden.actualizarOrden(pool);
-        res.status(200).send({ orden, message: 'Orden actualizada con éxito.' });
+        await Orden.actualizarOrden(id_orden, nombre, apellido, direccion, telefono, correo, fecha_entrega, total_orden, id_estado);
+        res.status(200).send({ message: 'Orden actualizada con éxito.' });
     } catch (err) {
         res.status(500).send('Error al actualizar la orden: ' + err.message);
     }
@@ -103,14 +84,13 @@ export const obtenerOrdenPorID = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        const resultado = await Orden.obtenerOrdenPorId(pool, id_orden);
+        const resultado = await Orden.obtenerOrdenPorId(id_orden);
 
-        if (resultado.recordset.length === 0) {
+        if (resultado.length === 0) {
             return res.status(404).json('La orden no existe.');
         }
-
-        const ordenJson = resultado.recordset[0];
+        console.log(resultado);
+        const ordenJson = resultado[0];
         res.status(200).send(ordenJson);
     } catch (err) {
         res.status(500).send('Error al recuperar la orden: ' + err.message);
@@ -127,8 +107,7 @@ export const cancelarOrden = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        await Orden.cancelarOrden(pool, id_orden);
+        await Orden.cancelarOrden( id_orden);
         res.status(200).send('Se ha cancelado la orden con éxito.');
     } catch (err) {
         res.status(500).send('Error al cancelar la orden: ' + err.message);
@@ -145,8 +124,7 @@ export const desactivarOrden = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        await Orden.desactivarOrden(pool, id_orden);
+        await Orden.desactivarOrden( id_orden);
         res.status(200).send('Se ha desactivado la orden con éxito.');
     } catch (err) {
         res.status(500).send('Error al desactivar la orden: ' + err.message);
@@ -161,12 +139,11 @@ export const obtenerOrdenesCliente = async (req, res) => {
 
     try {
         console.log(id_usuario)
-        const pool = await conectarDB();
-        const resultado = await Orden.obetenerOrdenesDeUsuario(pool,id_usuario);
-        if (resultado.recordset.length === 0) {
+        const resultado = await Orden.obtenerOrdenesDeUsuario(id_usuario);
+        if (resultado.length === 0) {
             return res.status(404).json('El usuario no existe.');
         }
-        return res.status(200).send(resultado.recordset);
+        return res.status(200).send(resultado);
     } catch (err) {
         return res.status(401).send('Error al recuperar las ordenes: del usuario ' + err.message);
     }

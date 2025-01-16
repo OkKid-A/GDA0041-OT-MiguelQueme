@@ -52,7 +52,7 @@ const ProductsCRUDPage: React.FC = () => {
     } else {
       const filteredProducts = products.filter( product =>
           product.marca.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.categoria.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.Categoria.toLowerCase().includes(searchQuery.toLowerCase()) ||
           product.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
           product.id_producto.toString() === searchQuery
       )
@@ -99,7 +99,7 @@ const ProductsCRUDPage: React.FC = () => {
         <Typography component="h3" variant="h3" sx={{color: theme.palette.text.primary}}>
           Productos
         </Typography>
-        <Searchbar label="Busca por ID, nombre, categoria o marca" searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <Searchbar label="Busca por ID, nombre, Categoria o marca" searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         <Button  variant="contained" onClick={handleOpen}>
           <Add /> Añadir Producto
         </Button>

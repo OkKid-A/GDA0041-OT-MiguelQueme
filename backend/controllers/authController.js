@@ -1,6 +1,5 @@
 import crypto from 'crypto';
 import generarAutToken from '../middleware/generarAuthToken.js';
-import { sql, conectarDB } from '../config/db.js';
 import Usuario from '../models/usuario.js';
 import NodeCache from "node-cache";
 import autenticacionToken, {blacklistToken} from "../middleware/autenticacionToken.js";
@@ -16,16 +15,16 @@ export const login = async (req, res) => {
     const passEncriptada = hash.digest('hex');
 
     try {
-        const pool = await conectarDB();
+        const usuario = await Usuario.loginUsuario(correo, passEncriptada);
 
-        const usuario = await Usuario.loginUsuario(correo, passEncriptada, pool);
+        console.log(usuario);
 
         if (!usuario) {
             return res.status(401).send('Credenciales incorrectas');
         }
 
         // Confirmamos que el estado del usuario sea activo
-        switch (usuario.estado) {
+        switch (usuario.id_estado) {
             case Estados.INACTIVO:
                 return res.status(403).send({
                     estado: usuario.estado,
@@ -46,7 +45,7 @@ export const login = async (req, res) => {
                     maxAge: 24*60*60*1000,
                     path: '/'
                 })
-                return res.status(201).send({token: token,message: 'Inicio de sesión exitoso.', rol: usuario.rol});
+                return res.status(201).send({token: token,message: 'Inicio de sesión exitoso.', rol: usuario.id_rol});
             default:
                 return res.status(401).send('Estado desconocido del usuario.');
         }
@@ -72,6 +71,7 @@ export const logout = async (req, res) => {
 export const verificarToken = async (req, res) => {
     try{
         const comprobado = jwt.verify(req.cookies.authToken, process.env.JWT_SECRET);
+        console.log(comprobado);
         res.status(200).send({token: req.cookies.authToken, rol: comprobado.rol});
     } catch (err) {
         res.status(400).send({message: 'Token invalido '+ err.message});

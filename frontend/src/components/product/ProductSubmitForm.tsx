@@ -80,7 +80,7 @@ const productSchema = yup.object().shape({
         return typeof value !== "string" && value.size <= 5 * 1024 * 1024;
       },
     ),
-  id_categoria: yup.number().required("La categoria es requerida."),
+  id_categoria: yup.number().required("La Categoria es requerida."),
   id_estado: yup.number().required("El estado es requerido."),
 });
 
@@ -204,7 +204,7 @@ const ProductSubmitForm: React.FC<ProductSubmitOrEditFormProps> = ({
         }}
         onChange={handleChangeFile}
       />
-      <InputLabel id="categoria" className={classes.inputLabel}>
+      <InputLabel id="Categoria" className={classes.inputLabel}>
         Categoria
       </InputLabel>
       <Select

@@ -1,5 +1,59 @@
 import sql from 'mssql';
+import sequelize from "../config/db.js";
+import {DataTypes, QueryTypes} from "sequelize";
 
+const Estado = sequelize.define('estados', {
+    id_estado: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    nombre: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    }
+});
+
+Estado.insertarEstado = async function (nombre)  {
+    const [result] = await sequelize.query(`
+        EXEC insertarEstado 
+        @nombre = @nombre;
+    `, {
+        bind: {
+            nombre: nombre
+        },
+        type: QueryTypes.SELECT
+    });
+
+    return result[0].id_estado;
+}
+
+Estado.actualizarEstado = async function (id_estado, nombre){
+    const [result] = await sequelize.query(`
+        EXEC actualizarEstado
+        @id_estado = @id_estado,
+        @nombre = @nombre;
+    `, {
+        bind: {
+            id_estado: id_estado,
+            nombre: nombre
+        }
+    });
+
+    return result;
+};
+
+Estado.seleccionarTodos = async function () {
+    const [result] = await sequelize.query(`
+        SELECT * FROM estadosTodos;
+    `, {
+        type: QueryTypes.SELECT
+    });
+
+    return result;
+};
+
+/*
 class Estado {
     constructor(id_estado, nombre) {
         this.nombre = nombre;
@@ -23,5 +77,5 @@ class Estado {
     }
 
 }
-
+*/
 export default Estado;

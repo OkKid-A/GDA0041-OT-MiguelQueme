@@ -8,6 +8,8 @@ const parseOrderStatus = (id_estado: StatusEnum) => {
             return "Pendiente";
         case StatusEnum.REJECTED:
             return "Rechazada";
+        case StatusEnum.CANCELED:
+            return "Cancelada";
         default:
             return "Borrada";
     }
