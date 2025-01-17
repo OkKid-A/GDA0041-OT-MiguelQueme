@@ -60,10 +60,12 @@ const Producto = sequelize.define('productos', {
             key: 'id_estado',
         }
     }
+},{
+    timestamps: false,
 });
 
 Producto.obtenerActivos = async function () {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         SELECT * FROM productosActivos;
     `, {
         type: QueryTypes.SELECT
@@ -73,7 +75,7 @@ Producto.obtenerActivos = async function () {
 };
 
 Producto.obtenerTodos = async function () {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         SELECT * FROM seleccionarTodosProductos;
     `, {
         type: QueryTypes.SELECT
@@ -83,7 +85,7 @@ Producto.obtenerTodos = async function () {
 };
 
 Producto.obtenerPorId = async function (id_producto) {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         EXEC seleccionarProducto
         @id_producto = :id_producto;
     `,{
@@ -97,7 +99,7 @@ Producto.obtenerPorId = async function (id_producto) {
 };
 
 Producto.insertarProducto = async function (productoBody){
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         EXEC insertarProducto
         @nombre = :nombre,
         @marca = :marca,
@@ -127,7 +129,7 @@ Producto.insertarProducto = async function (productoBody){
 };
 
 Producto.actualizarProducto = async function (productoBody) {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         EXEC actualizarProducto
         @id_producto = :id_producto,
         @nombre = :nombre,
@@ -141,14 +143,14 @@ Producto.actualizarProducto = async function (productoBody) {
     `, {
         replacements: {
             id_producto: productoBody.id_producto,
-            nombre: productoBody.nombre,
-            marca: productoBody.marca,
-            codigo: productoBody.codigo,
-            stock: productoBody.stock,
-            precio: productoBody.precio,
-            foto: productoBody.foto,
-            id_categoria: productoBody.id_categoria,
-            id_estado: productoBody.id_estado,
+            nombre: productoBody.nombre || null,
+            marca: productoBody.marca || null,
+            codigo: productoBody.codigo || null,
+            stock: productoBody.stock || null,
+            precio: productoBody.precio || null,
+            foto: productoBody.foto || null,
+            id_categoria: productoBody.id_categoria || null,
+            id_estado: productoBody.id_estado || null,
         }
     });
 
@@ -156,7 +158,7 @@ Producto.actualizarProducto = async function (productoBody) {
 };
 
 Producto.desactivarProducto = async function (id_producto) {
-    const [result] = sequelize.query(`
+    const result = sequelize.query(`
         EXEC desactivarProducto
         @id_producto = :id_producto;
     `, {

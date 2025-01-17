@@ -1,6 +1,6 @@
-import sql from 'mssql';
 import sequelize from '../config/db.js';
-import {DataTypes, QueryTypes, Sequelize} from "sequelize";
+import {DataTypes, QueryTypes} from "sequelize";
+import formatDate from "../utils/formatDate.js";
 
 const Usuario = sequelize.define('usuarios', {
     id_usuario: {
@@ -65,10 +65,13 @@ const Usuario = sequelize.define('usuarios', {
             key: 'id_cliente',
         }
     }
+},{
+    timestamps: false,
 });
 
 Usuario.insertarUsuario = async function (usuarioBody){
-
+    console.log(usuarioBody);
+    const nacimientoFormateado = formatDate(usuarioBody.fecha_nacimiento)
     const result = await sequelize.query(`
         EXEC insertarUsuario
         @correo = :correo,
@@ -87,9 +90,9 @@ Usuario.insertarUsuario = async function (usuarioBody){
                     nombre: usuarioBody.nombre,
                     apellido: usuarioBody.apellido,
                     telefono: usuarioBody.telefono,
-                    fecha_nacimiento: usuarioBody.fecha_nacimiento,
+                    fecha_nacimiento: nacimientoFormateado,
                     direccion: usuarioBody.direccion,
-                    password: usuarioBody.password,
+                    password: usuarioBody.passEncriptada,
                     id_rol: usuarioBody.id_rol,
                     id_estado: usuarioBody.id_estado,
                     id_cliente: usuarioBody.id_cliente,
@@ -117,15 +120,15 @@ Usuario.actualizarUsuario = async function (usuarioBody){
     `, {
         replacements: {
             id_usuario: usuarioBody.id,
-            correo: usuarioBody.correo,
-            nombre: usuarioBody.nombre,
-            apellido: usuarioBody.apellido,
-            telefono: usuarioBody.telefono,
-            fecha_nacimiento: usuarioBody.fecha_nacimiento,
-            direccion: usuarioBody.direccion,
-            id_rol: usuarioBody.id_rol,
-            id_estado: usuarioBody.id_estado,
-            id_cliente: usuarioBody.id_cliente,
+            correo: usuarioBody.correo || null,
+            nombre: usuarioBody.nombre || null,
+            apellido: usuarioBody.apellido || null,
+            telefono: usuarioBody.telefono || null,
+            fecha_nacimiento: usuarioBody.fecha_nacimiento || null,
+            direccion: usuarioBody.direccion || null,
+            id_rol: usuarioBody.id_rol || null,
+            id_estado: usuarioBody.id_estado || null,
+            id_cliente: usuarioBody.id_cliente || null,
         }
     })
     return result;
@@ -164,13 +167,11 @@ Usuario.loginUsuario = async function (correo, passEncryptada){
 };
 
 Usuario.verificarUnico = async function (correo){
-    const result = await Usuario.findAll({
+    return await Usuario.findAll({
         where: {
             correo: correo,
         }
-    })
-
-    return result;
+    });
 }
 
 Usuario.desactivarUsuarios = async function (id){
@@ -178,7 +179,7 @@ Usuario.desactivarUsuarios = async function (id){
         EXEC bloquearUsuario
         @id_usuario = :id_usuario;
     `, {
-        replacemente: {
+        replacements: {
             id_usuario: id
         }
     })

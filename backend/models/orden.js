@@ -48,6 +48,8 @@ const Orden = sequelize.define('ordenes', {
         type: DataTypes.INTEGER,
         allowNull: false,
     }
+},{
+    timestamps: false,
 });
 
 const OrdenDetalle = sequelize.define('orden_detalles', {
@@ -84,6 +86,8 @@ const OrdenDetalle = sequelize.define('orden_detalles', {
             key: 'id_producto',
         }
     }
+},{
+    timestamps: false,
 });
 
 // Funcion para insertar una orden junto con el json de sus detalles
@@ -133,20 +137,20 @@ Orden.actualizarOrden = async function (ordenBody){
     `, {
         replacements: {
             id_orden: ordenBody.id_orden,
-            nombre: ordenBody.nombre,
-            apellido: ordenBody.apellido,
-            direccion: ordenBody.direccion,
-            telefono: ordenBody.telefono,
-            correo: ordenBody.correo,
-            fecha_entrega: ordenBody.fecha_entrega,
-            total_orden: ordenBody.total_orden,
-            id_estado: ordenBody.id_estado,
+            nombre: ordenBody.nombre || null,
+            apellido: ordenBody.apellido || null,
+            direccion: ordenBody.direccion || null,
+            telefono: ordenBody.telefono || null,
+            correo: ordenBody.correo || null,
+            fecha_entrega: ordenBody.fecha_entrega || null,
+            total_orden: ordenBody.total_orden || null,
+            id_estado: ordenBody.id_estado || null,
         }
     });
 };
 
 Orden.obtenerOrdenPorId = async function (id_orden){
-    return await sequelize.query(`
+    const result =  await sequelize.query(`
         EXEC obtenerOrdenConDetalles
         @id_orden = :id_orden;
     `, {
@@ -155,6 +159,19 @@ Orden.obtenerOrdenPorId = async function (id_orden){
         },
         type: QueryTypes.SELECT
     });
+    console.log(result);
+    // Sequelize separa el json cuando es demasiado grande, aqui lo parseamos en una sola string
+    if (Array.isArray(result) && result.length > 0) {
+        let jsonString = '';
+        for (const item of result) {
+            jsonString += item['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'] || '';
+        }
+        console.log('JSON String:', jsonString);
+        // Encapsulamos al Json en un objeto
+        return {'JSON_F52E2B61-18A1-11d1-B105-00805F49916B': jsonString};
+    } else {
+        return result;
+    }
 };
 
 Orden.cancelarOrden = async function (id_orden){
@@ -193,7 +210,7 @@ Orden.obtenerOrdenesDeUsuario = async function (id_usuario){
 
 Orden.obtenerOrdenes = async function () {
     return await sequelize.query(`
-        SELECT * FROM ordenes;
+        SELECT * FROM seleccionarTodasOrdenes;
     `, {
         type: QueryTypes.SELECT
     });

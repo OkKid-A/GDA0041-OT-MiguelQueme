@@ -52,7 +52,7 @@ const ProductsCRUDPage: React.FC = () => {
     } else {
       const filteredProducts = products.filter( product =>
           product.marca.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.Categoria.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.categoria.toLowerCase().includes(searchQuery.toLowerCase()) ||
           product.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
           product.id_producto.toString() === searchQuery
       )

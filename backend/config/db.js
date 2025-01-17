@@ -10,6 +10,7 @@ const sequelize = new Sequelize({
         database: 'GDA0044_OT_MiguelQueme',
         username: 'SA',
         password: 'Hura2341',
+        logging: false,
         dialectOptions: {
             encrypt: true,
             trustServerCertificate: true,

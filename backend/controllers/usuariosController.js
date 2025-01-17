@@ -27,7 +27,7 @@ export const verificarUnico = async (req, res) => {
     }
 
     try {
-        const result = Usuario.verificarUnico(correo);
+        const result = await Usuario.verificarUnico(correo);
 
         if (result.length > 0) {
             res.json({ isUnique: false });
@@ -57,7 +57,7 @@ export const insertarUsuario = async (req, res) => {
     try {
         // Insertamos el Usuario con la contraseña encriptada
         const nuevoUsuarioId = await Usuario.insertarUsuario(
-            correo,nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado,id_cliente, direccion, password
+            {correo,nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado,id_cliente, direccion, passEncriptada}
         )
         res.status(200).send({ id_usuario: nuevoUsuarioId, message: 'Usuario creado exitosamente.' });
     } catch (err) {
@@ -76,7 +76,7 @@ export const editarUsuario = async (req, res) => {
 
     try {
         // Actualizamos en la base de datos
-        await Usuario.actualizarUsuario(id, correo, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente, direccion);
+        await Usuario.actualizarUsuario({id, correo, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente, direccion});
         res.status(200).send( 'Usuario actualizado exitosamente.' );
     } catch (err) {
         res.status(500).send('Error al actualizar al usuario: ' + err.message);

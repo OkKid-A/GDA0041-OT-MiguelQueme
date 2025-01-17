@@ -12,14 +12,16 @@ const Estado = sequelize.define('estados', {
         type: DataTypes.STRING,
         allowNull: false,
     }
+},{
+    timestamps: false,
 });
 
 Estado.insertarEstado = async function (nombre)  {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         EXEC insertarEstado 
-        @nombre = @nombre;
+        @nombre = :nombre;
     `, {
-        bind: {
+        replacements: {
             nombre: nombre
         },
         type: QueryTypes.SELECT
@@ -29,14 +31,14 @@ Estado.insertarEstado = async function (nombre)  {
 }
 
 Estado.actualizarEstado = async function (id_estado, nombre){
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         EXEC actualizarEstado
-        @id_estado = @id_estado,
-        @nombre = @nombre;
+        @id_estado = :id_estado,
+        @nombre = :nombre;
     `, {
-        bind: {
+        replacements: {
             id_estado: id_estado,
-            nombre: nombre
+            nombre: nombre || null
         }
     });
 
@@ -44,7 +46,7 @@ Estado.actualizarEstado = async function (id_estado, nombre){
 };
 
 Estado.seleccionarTodos = async function () {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         SELECT * FROM estadosTodos;
     `, {
         type: QueryTypes.SELECT

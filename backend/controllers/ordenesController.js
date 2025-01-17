@@ -1,4 +1,5 @@
 import Orden from '../models/orden.js';
+import formatDate from "../utils/formatDate.js";
 
 export const obtenerOrdenes = async (req, res) => {
     const id_usuario = req.user.id_usuario; // Si la informacion del usuario existe la sesion es activa
@@ -25,9 +26,11 @@ export const insertarOrdenConDetalle = async (req, res) => {
 
     try {
         const jsonString = JSON.stringify(json);
+        console.log(jsonString);
         await Orden.insertarOrdenConDetalles(direccion,fecha_entrega, jsonString, id_usuario);
         res.status(200).send('Orden ingresada con éxito.');
     } catch (err) {
+        console.log(err);
         res.status(500).send('Error al ingresar la orden: ' + err.message);
     }
 };
@@ -57,7 +60,7 @@ export const actualizarDetalles = async (req, res) => {
 export const actualizarOrden = async (req, res) => {
     const id_usuario = req.user.id_usuario;
     const id_orden = req.params.id;
-    const { nombre, apellido, direccion, telefono, correo, fecha_entrega, total_orden, id_estado } = req.body;
+    const { nombre, apellido, direccion, telefono, correo, total_orden, id_estado } = req.body;
 
     if (!id_usuario) {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
@@ -67,8 +70,17 @@ export const actualizarOrden = async (req, res) => {
         return res.status(404).send('No se encontro un id_orden' + req.params.id)
     }
 
+    let {fecha_entrega} = req.body;
+    if (fecha_entrega) {
+        const fechaDate = new Date(fecha_entrega);
+        fechaDate.setDate(fechaDate.getDate() + 2);
+        fecha_entrega = formatDate(fechaDate);
+    } else {
+        fecha_entrega = null;
+    }
+    console.log(fecha_entrega);
     try {
-        await Orden.actualizarOrden(id_orden, nombre, apellido, direccion, telefono, correo, fecha_entrega, total_orden, id_estado);
+        await Orden.actualizarOrden({id_orden, nombre, apellido, direccion, telefono, correo, fecha_entrega, total_orden, id_estado});
         res.status(200).send({ message: 'Orden actualizada con éxito.' });
     } catch (err) {
         res.status(500).send('Error al actualizar la orden: ' + err.message);
@@ -90,8 +102,7 @@ export const obtenerOrdenPorID = async (req, res) => {
             return res.status(404).json('La orden no existe.');
         }
         console.log(resultado);
-        const ordenJson = resultado[0];
-        res.status(200).send(ordenJson);
+        res.status(200).send(resultado);
     } catch (err) {
         res.status(500).send('Error al recuperar la orden: ' + err.message);
     }

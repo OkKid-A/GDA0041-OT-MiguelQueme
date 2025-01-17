@@ -60,7 +60,7 @@ export const insertarCategoriaProducto = async (req, res) => {
     }
 
     try {
-        const id_categoria =  await Categoria.insertarCategoria(nombre, userId, id_estado);
+        const id_categoria =  await Categoria.insertarCategoria({nombre, userId, id_estado});
         res.status(200).json({ id_categoria, message: 'Categoría de producto creada exitosamente' });
     } catch (err) {
         res.status(500).json({ message: 'Error al crear la categoría de producto', error: err.message });
@@ -78,7 +78,7 @@ export const editarCategoria = async (req, res) => {
     }
 
     try {
-        await Categoria.actualizarCategoria(nombre, id_estado, id_categoria);
+        await Categoria.actualizarCategoria({nombre, id_estado, id_categoria});
         res.status(200).json('Categoría de producto editada exitosamente');
     } catch (err) {
         res.status(500).json({ message: 'Error al editar la categoría de producto', error: err.message });

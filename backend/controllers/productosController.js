@@ -67,7 +67,7 @@ export const insertarProducto = async (req, res) => {
     }
 
     try {
-        const id_producto = await Producto.insertarProducto(nombre, marca, codigo, stock, precio, foto, id_categoria, id_usuario, id_estado);
+        const id_producto = await Producto.insertarProducto({nombre, marca, codigo, stock, precio, foto, id_categoria, id_usuario, id_estado});
         res.status(200).send({ id_producto, message: 'Producto creado exitosamente' });
     } catch (err) {
         res.status(500).send('Error al insertar el producto: ' + err.message);
@@ -106,7 +106,7 @@ export const editarProducto = async (req, res) => {
     console.log(foto);
 
     try {
-        await Producto.actualizarProducto(id_producto, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado );
+        await Producto.actualizarProducto({id_producto, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado });
         res.status(200).send('Producto actualizado con exito.');
     } catch (err) {
         res.status(500).send('Error al intentar actualizar el producto: ' + err.message);

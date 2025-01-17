@@ -35,10 +35,12 @@ const Cliente = sequelize.define('clientes', {
             key: 'id_estado',
         }
     }
+},{
+    timestamps: false,
 });
 
 Cliente.obtenerClientes = async function () {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
     SELECT * FROM seleccionarTodosClientes;`,
         {
             type: QueryTypes.SELECT,
@@ -48,12 +50,12 @@ Cliente.obtenerClientes = async function () {
 };
 
 Cliente.obtenerCliente = async function (id_cliente) {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         EXEC seleccionarCliente
-        @id_cliente = @id_cliente;
+        @id_cliente = :id_cliente;
     `, {
         type: QueryTypes.SELECT,
-        bind: {
+        replacements: {
             id_cliente: id_cliente,
         }
     })
@@ -62,16 +64,16 @@ Cliente.obtenerCliente = async function (id_cliente) {
 };
 
 Cliente.insertarCliente = async function (clienteBody){
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         EXEC insertarCliente
-        @razon_social = @razon_social,
-        @nombre_comercial = @nombre_comercial,
-        @direccion_entrega = @direccion_entrega,
-        @correo_empresarial = @correo_empresarial,
-        @telefono_empresarial = @telefono_empresarial,
-        @id_estado = @id_estado; 
+        @razon_social = :razon_social,
+        @nombre_comercial = :nombre_comercial,
+        @direccion_entrega = :direccion_entrega,
+        @correo_empresarial = :correo_empresarial,
+        @telefono_empresarial = :telefono_empresarial,
+        @id_estado = :id_estado; 
     `, {
-        bind: {
+        replacements: {
             razon_social: clienteBody.razon_social,
             nombre_comercial: clienteBody.nombre_comercial,
             direccion_entrega: clienteBody.direccion_entrega,
@@ -85,24 +87,24 @@ Cliente.insertarCliente = async function (clienteBody){
 };
 
 Cliente.actualizarCliente = async function (clienteBody){
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         EXEC actualizarCliente
-        @id_cliente = @id_cliente,
-        @razon_social = @razon_social,
-        @nombre_comercial = @nombre_comercial,
-        @direccion_entrega = @direccion_entrega,
-        @correo_empresarial = @correo_empresarial,
-        @telefono_empresarial = @telefono_empresarial,
-        @id_estado = @id_estado;
+        @id_cliente = :id_cliente,
+        @razon_social = :razon_social,
+        @nombre_comercial = :nombre_comercial,
+        @direccion_entrega = :direccion_entrega,
+        @correo_empresarial = :correo_empresarial,
+        @telefono_empresarial = :telefono_empresarial,
+        @id_estado = :id_estado;
     `, {
-        bind: {
+        replacements: {
             id_cliente: clienteBody.id_cliente,
-            razon_social: clienteBody.razon_social,
-            nombre_comercial: clienteBody.nombre_comercial,
-            direccion_entrega: clienteBody.direccion_entrega,
-            correo_empresarial: clienteBody.correo_empresarial,
-            telefono_empresarial: clienteBody.telefono_empresarial,
-            id_estado: clienteBody.id_estado,
+            razon_social: clienteBody.razon_social || null,
+            nombre_comercial: clienteBody.nombre_comercial || null,
+            direccion_entrega: clienteBody.direccion_entrega || null,
+            correo_empresarial: clienteBody.correo_empresarial || null,
+            telefono_empresarial: clienteBody.telefono_empresarial || null,
+            id_estado: clienteBody.id_estado || null,
         }
     });
 
@@ -110,11 +112,11 @@ Cliente.actualizarCliente = async function (clienteBody){
 };
 
 Cliente.desactivarCliente = async function (id_cliente) {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         EXEC desactivarCliente
-        @id_cliente = @id_cliente;
+        @id_cliente = :id_cliente;
     `, {
-        bind: {
+        replacements: {
             id_cliente: id_cliente,
         }
     });

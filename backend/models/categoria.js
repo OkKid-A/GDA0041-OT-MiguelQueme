@@ -32,10 +32,12 @@ const Categoria = sequelize.define('categorias_productos', {
             key: 'id_usuario',
         }
     }
+},{
+    timestamps: false,
 });
 
 Categoria.obtenerTodas = async function () {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         SELECT *
         FROM categoriasTodas;
     `, {
@@ -46,7 +48,7 @@ Categoria.obtenerTodas = async function () {
 };
 
 Categoria.obtenerActivas = async function () {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
         SELECT *
         FROM categoriasActivas;
     `, {
@@ -57,9 +59,9 @@ Categoria.obtenerActivas = async function () {
 };
 
 Categoria.obtenerPorId = async function (id_categoria) {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
     EXEC seleccionarCategoria
-    @id_categoria = @id_categoria;
+    @id_categoria = :id_categoria;
     `, {
         type: QueryTypes.SELECT,
     })
@@ -70,11 +72,11 @@ Categoria.obtenerPorId = async function (id_categoria) {
 Categoria.insertarCategoria = async function (categoriaBody) {
     const [results] = await sequelize.query(`
     EXEC insertarCategoriaProducto 
-    @nombre = @nombre,
-    @id_usuario = @id_usuario,
-    @id_estado = @id_estado;`,{
+    @nombre = :nombre,
+    @id_usuario = :id_usuario,
+    @id_estado = :id_estado;`,{
         type: QueryTypes.SELECT,
-        bind: {
+        replacements: {
             nombre: categoriaBody.nombre,
             id_usuario: categoriaBody.userId,
             id_estado: categoriaBody.id_estado,
@@ -85,14 +87,14 @@ Categoria.insertarCategoria = async function (categoriaBody) {
 };
 
 Categoria.actualizarCategoria = async function (categoriaBody) {
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
     EXEC actualizarCategoriaProducto
-    @nombre = @nombre,
-    @id_estado = @id_estado,
-    @id_categoria = @id_categoria;`,{
-        bind: {
-            nombre: categoriaBody.nombre,
-            id_estado: categoriaBody.id_estado,
+    @nombre = :nombre,
+    @id_estado = :id_estado,
+    @id_categoria = :id_categoria;`,{
+        replacements: {
+            nombre: categoriaBody.nombre  || null,
+            id_estado: categoriaBody.id_estado  || null,
             id_categoria: categoriaBody.id_categoria,
         }
     });
@@ -101,10 +103,10 @@ Categoria.actualizarCategoria = async function (categoriaBody) {
 };
 
 Categoria.desactivarCategoria = async function (id_categoria){
-    const [result] = await sequelize.query(`
+    const result = await sequelize.query(`
     EXEC desactivarCategoria
-    @id_categoria = @id_categoria;`,{
-        bind:{
+    @id_categoria = :id_categoria;`,{
+        replacements:{
             id_categoria: id_categoria
         }
     })

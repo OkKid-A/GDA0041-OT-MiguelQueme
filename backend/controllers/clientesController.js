@@ -41,8 +41,8 @@ export const crearCliente = async (req, res) => {
     }
 
     try {
-        const id_cliente = await Cliente.insertarCliente(
-            razon_social, nombre_comercial, direccion_entrega, correo_empresarial, telefono_empresarial, id_estado
+        const id_cliente = await Cliente.insertarCliente({
+            razon_social, nombre_comercial, direccion_entrega, correo_empresarial, telefono_empresarial, id_estado}
         );
         return res.status(200).send({ id_cliente, message: 'El cliente ha sido creado con exito.' });
     } catch (err) {
@@ -61,7 +61,7 @@ export const editarCliente = async (req, res) => {
     }
 
     try {
-        await Cliente.actualizarCliente(id_cliente, razon_social, nombre_comercial, direccion_entrega, correo_empresarial, telefono_empresarial, id_estado);
+        await Cliente.actualizarCliente({id_cliente, razon_social, nombre_comercial, direccion_entrega, correo_empresarial, telefono_empresarial, id_estado});
         return res.status(200).send('El cliente ha sido actualizado con exito.');
     } catch (err) {
         return res.status(400).send('Error al actualizar al cliente: ' + err.message);

@@ -233,7 +233,6 @@ const ProductCRUDTable: React.FC<ProductCRUDTableProps> = ({
               <TableCell align="center">
                 <Button
                   variant="outlined"
-                  disabled={product.id_estado === StatusEnum.INACTIVE}
                   sx={{
                     color: theme.palette.primary.light,
                     "&.Mui-disabled": {

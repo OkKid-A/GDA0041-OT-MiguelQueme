@@ -179,7 +179,7 @@ const OrderHistoryModal: React.FC<OrderHistoryModalProps> = ({
       setFilteredProducts(productFilteded);
     };
     filterItems();
-  }, [searchQuery, products]);
+  }, [searchQuery, products, productDetails]);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
