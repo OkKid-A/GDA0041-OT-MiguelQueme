@@ -171,7 +171,7 @@ const UserSubmitForm: React.FC<UserSubmitFormProps> = ({
         errorMessage={errors.fecha_nacimiento?.message}
         {...register("fecha_nacimiento")}
       />
-      <InputLabel id="categoria" className={classes.inputLabel}>
+      <InputLabel id="Categoria" className={classes.inputLabel}>
         Cliente
       </InputLabel>
       <Select

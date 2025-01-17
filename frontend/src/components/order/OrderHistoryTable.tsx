@@ -87,8 +87,11 @@ const OrderHistoryTable: React.FC<OrderHistoryTableProps> = ({
     const id_estado = StatusEnum.ACTIVE;
     if (id) {
       try {
+        const today = new Date();
+        console.log(today);
         const response = await api.put(`/ordenes/${id}`, {
           id_estado: id_estado,
+          fecha_entrega: new Date(),
         });
         if (response.status === 200) {
           setMessage("Se ha entregado la orden con éxito");

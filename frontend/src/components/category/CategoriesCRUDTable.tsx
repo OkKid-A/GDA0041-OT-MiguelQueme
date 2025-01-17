@@ -156,7 +156,6 @@ const CategoriesCRUDTable: React.FC<CategoriesCRUDTableProps> = ({
               <TableCell align="center">
                 <Button
                   variant="outlined"
-                  disabled={category.id_estado === StatusEnum.INACTIVE}
                   sx={{
                     color: theme.palette.primary.light,
                     "&.Mui-disabled": {

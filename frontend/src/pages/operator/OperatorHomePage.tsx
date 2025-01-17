@@ -41,7 +41,9 @@ const OperatorHomePage: React.FC = () => {
     try {
       const response = await api.get("/ordenes");
       if (response.status === 200) {
+        console.log(response.data);
         setOrders(response.data as Order[]);
+        console.log(orders);
         setDisplayedOrders(orders);
       } else {
         console.error(response.statusText);

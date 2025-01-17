@@ -4,7 +4,6 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import cors from 'cors';
-import { sql, conectarDB } from './config/db.js';
 import dotenv from 'dotenv';
 import createError from 'http-errors';
 dotenv.config();
@@ -20,14 +19,19 @@ import autenticacionToken from "./middleware/autenticacionToken.js";
 import verificarRol from "./middleware/verificarRol.js";
 import Roles from "./utils/Roles.js";
 import router from "./routes/productosRouter.js";
+import sequelize from "./config/db.js";
 
 const app = express();
 
-// Connect to the database
-await conectarDB().catch(err => {
-    console.error('Error en la conexión a la base de datos:', err);
-    process.exit(1);
-});
+// Conectar a la base de datos
+sequelize.authenticate().then(
+    () => {
+        console.log('Conectado a la db')
+    })
+    .catch(err => {
+        console.error('No se ha realizado la conexion a db: ',err);
+})
+;
 
 app.use(logger('dev'));
 app.use(express.json());

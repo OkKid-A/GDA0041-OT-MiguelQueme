@@ -1,4 +1,3 @@
-import { conectarDB } from '../config/db.js';
 import Usuario from '../models/usuario.js';
 import crypto from 'crypto';
 
@@ -10,8 +9,7 @@ export const obtenerUsuarios = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        const usuarios = await Usuario.obtenerUsuarios(pool);
+        const usuarios = await Usuario.obtenerUsuarios();
         const sinOrigen = usuarios.filter((usuario) => usuario.id_usuario !== id_usuario);
         res.status(200).send(sinOrigen);
     } catch (err) {
@@ -29,11 +27,9 @@ export const verificarUnico = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        const query = `SELECT * FROM usuarios WHERE correo = '${correo}'`
-        const result = await pool.query(query);
+        const result = await Usuario.verificarUnico(correo);
 
-        if (result.recordset.length > 0) {
+        if (result.length > 0) {
             res.json({ isUnique: false });
         } else {
             res.json({ isUnique: true });
@@ -50,27 +46,27 @@ export const insertarUsuario = async (req, res) => {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
     }
 
-    const { correo, password, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente } = req.body;
+    const { correo, password, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente, direccion } = req.body;
     // Encriptamos la contraseña en sha256 antes de enviarla al frontend
     const hash = crypto.createHash('sha256');
     hash.update(password);
     const passEncriptada = hash.digest('hex');
 
     // Creamos un objeto Usuario
-    const nuevoUsuario = new Usuario(null, correo, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente);
 
     try {
-        const pool = await conectarDB();
         // Insertamos el Usuario con la contraseña encriptada
-        const usuarioId = await nuevoUsuario.insertarUsuario(passEncriptada,pool);
-        res.status(200).send({ id_usuario: usuarioId, message: 'Usuario creado exitosamente.' });
+        const nuevoUsuarioId = await Usuario.insertarUsuario(
+            {correo,nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado,id_cliente, direccion, passEncriptada}
+        )
+        res.status(200).send({ id_usuario: nuevoUsuarioId, message: 'Usuario creado exitosamente.' });
     } catch (err) {
         res.status(500).send('Error al insertar al usuario: ' + err.message);
     }
 };
 
 export const editarUsuario = async (req, res) => {
-    const { correo, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente } = req.body;
+    const { correo, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente, direccion } = req.body;
     const id = req.params.id;
     const id_usuario = req.user.id_usuario;
 
@@ -78,13 +74,9 @@ export const editarUsuario = async (req, res) => {
         return res.status(401).send('No autorizado: No has iniciado sesion.');
     }
 
-    // Creamos el objeto del usuario actualizado
-    const usuarioActualizado = new Usuario(id, correo, nombre, apellido, telefono, fecha_nacimiento, null, id_rol, id_estado, id_cliente);
-
     try {
-        const pool = await conectarDB();
         // Actualizamos en la base de datos
-        await usuarioActualizado.actualizarUsuario(pool);
+        await Usuario.actualizarUsuario({id, correo, nombre, apellido, telefono, fecha_nacimiento, id_rol, id_estado, id_cliente, direccion});
         res.status(200).send( 'Usuario actualizado exitosamente.' );
     } catch (err) {
         res.status(500).send('Error al actualizar al usuario: ' + err.message);
@@ -101,9 +93,8 @@ export const desactivarUsuario = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
         // Usamos una funcion estatica para desactivar al usuario
-        await Usuario.desactivarUsuarios(pool, id);
+        await Usuario.desactivarUsuarios(id);
         res.status(200).send({ message: 'Usuario desactivado exitosamente.' });
     } catch (err) {
         res.status(500).send('Error al desactivar el usuario: ' + err.message);
@@ -120,9 +111,8 @@ export const activarUsuario = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
         // Usamos una funcion estatica para activar al usuario
-        await Usuario.activarUsuarios(pool, id);
+        await Usuario.activarUsuarios(id);
         res.status(200).send({ message: 'Usuario desactivado exitosamente.' });
     } catch (err) {
         res.status(500).send('Error al desactivar el usuario: ' + err.message);

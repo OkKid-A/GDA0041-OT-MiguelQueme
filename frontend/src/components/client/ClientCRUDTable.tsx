@@ -160,7 +160,6 @@ const ClientCRUDTable: React.FC<ClientCRUDTableProps> = ({
               <TableCell align="center">
                 <Button
                   variant="outlined"
-                  disabled={client.id_estado === StatusEnum.INACTIVE}
                   sx={{
                     color: theme.palette.primary.light,
                     "&.Mui-disabled": {

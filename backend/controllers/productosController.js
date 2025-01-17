@@ -1,4 +1,3 @@
-import { conectarDB } from '../config/db.js';
 import Producto from '../models/producto.js';
 import multer from "multer";
 import path from "path";
@@ -12,8 +11,7 @@ export const obtenerProductos = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        const productos = await Producto.obtenerActivos(pool);
+        const productos = await Producto.obtenerActivos();
         res.status(200).json(productos);
     } catch (e) {
         res.status(404).send('Error al recuperar productos activos: ' + e.message);
@@ -29,8 +27,7 @@ export const obtenerTodosProductos = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        const productos = await Producto.obtenerTodos(pool);
+        const productos = await Producto.obtenerTodos();
         res.status(200).json(productos);
     } catch (e) {
         res.status(404).send('Error al recuperar productos: ' + e.message);
@@ -47,8 +44,7 @@ export const obtenerProductoPorId = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        const producto = await Producto.obtenerPorId(pool, id_producto);
+        const producto = await Producto.obtenerPorId(id_producto);
         res.json(producto);
     } catch (e) {
         res.status(404).send('Error al recuperar el producto: ' + e.message);
@@ -71,9 +67,7 @@ export const insertarProducto = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        const producto = new Producto(null, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado);
-        const id_producto = await producto.insertarProducto(pool, id_usuario);
+        const id_producto = await Producto.insertarProducto({nombre, marca, codigo, stock, precio, foto, id_categoria, id_usuario, id_estado});
         res.status(200).send({ id_producto, message: 'Producto creado exitosamente' });
     } catch (err) {
         res.status(500).send('Error al insertar el producto: ' + err.message);
@@ -112,9 +106,7 @@ export const editarProducto = async (req, res) => {
     console.log(foto);
 
     try {
-        const pool = await conectarDB();
-        const producto = new Producto(id_producto, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado, null);
-        await producto.actualizarProducto(pool);
+        await Producto.actualizarProducto({id_producto, nombre, marca, codigo, stock, precio, foto, id_categoria, id_estado });
         res.status(200).send('Producto actualizado con exito.');
     } catch (err) {
         res.status(500).send('Error al intentar actualizar el producto: ' + err.message);
@@ -131,8 +123,7 @@ export const desactivarProducto = async (req, res) => {
     }
 
     try {
-        const pool = await conectarDB();
-        await Producto.desactivar(pool, id_producto);
+        await Producto.desactivarProducto(id_producto);
         res.status(200).send('Producto desactivado con exito.');
     } catch (err) {
         res.status(500).send('Error al intentar desactivar el producto: ' + err.message);

@@ -1,5 +1,30 @@
 import sql from 'mssql';
+import {Sequelize} from "sequelize";
+import {MsSqlDialect} from "@sequelize/mssql";
 
+
+const sequelize = new Sequelize({
+        dialect: "mssql",
+        server: 'localhost',
+        port: 1433,
+        database: 'GDA0044_OT_MiguelQueme',
+        username: 'SA',
+        password: 'Hura2341',
+        logging: false,
+        dialectOptions: {
+            encrypt: true,
+            trustServerCertificate: true,
+            authentication: {
+                type: 'default',
+                options: {
+                    userName: 'SA',
+                    password: 'Hura2341',
+                }
+            },
+        }
+    }
+);
+/*
 // Ingresa los datos de tu base de datos
 const config = {
     user: 'SA',
@@ -11,6 +36,7 @@ const config = {
         trustServerCertificate: true
     },
 };
+
 
 // Generamos una conexion singleton para mantener una sola conexion abierta hacia la db
 let pool;
@@ -27,5 +53,6 @@ async function conectarDB() {
     }
     return pool;
 }
+*/
 
-export { sql, conectarDB };
+export default sequelize;
